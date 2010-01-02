@@ -153,13 +153,6 @@ public:
 	void set_y(int p_y);
 	int get_y() const;
 
-	enum {
-
-		LAYER_ALWAYS_VISIBLE=-1
-	};
-
-	void set_layer(int p_layer);
-	virtual int get_layer() const;
 
 	Error save_file( String p_filename );
 	Error load_file( String p_filename );
