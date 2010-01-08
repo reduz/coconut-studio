@@ -1,0 +1,9 @@
+Import('env')
+Export('env')
+
+files=[]
+
+env.find_source_files(files,"*.cpp");
+
+libfile = env.Library('types', files)
+env.libs.append(libfile)

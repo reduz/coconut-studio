@@ -1,0 +1,168 @@
+EnsureSConsVersion(0,14);
+
+import os
+
+# Helpers
+
+def find_source_files(self, source_list,filetype):
+	import glob;
+	import string;
+	dir = self.Dir('.').abspath
+	sources = glob.glob(dir + "/"+filetype);
+	source_list+=sources;
+
+
+win32=(os.name == 'nt')
+win32_paths=win32
+
+env=Environment(tools=['default']);
+env.Tool('qt4',toolpath=['#'])
+
+env.asio_enabled=False
+
+win32_msvc=("msvc" in env["TOOLS"])
+
+opts=Options()
+opts.Add('optimize', 'Optimize (0|1).', 0)
+opts.Add('debug', 'Add debug symbols (0|1).', 1)
+opts.Add('prefix', 'The installation prefix', '/usr/local/')
+if (not win32):
+	opts.Add('jack','Enable JACK connection kit (0|1).',1)
+opts.Add('PNG','Enable LibPNG (0|1).',1)
+opts.Add('vst_enabled', 'Enable VST Support (win32 and win32_cross) (0|1).', 1)
+opts.Add('asio_enabled', 'Enable ASIO Support (win32 and win32_cross) (0|1).', 1)
+
+win32_cross=False
+# add the cross compiler option
+if (not win32):
+	opts.Add('win32_cross', 'Cross-Compile using mingw32 under unix (0|1). ', 0)
+
+opts.Update(env) # update environment
+Help(opts.GenerateHelpText(env)) # generate help
+
+
+if (not win32):
+	win32_cross = env['win32_cross']
+
+# Set the win32 cross compiler if requested
+if (win32_cross):
+
+	env.Append(CPPFLAGS=['-DANSIC_LIBS_ENABLED','-fstrict-aliasing'])
+	env['CXX']='i586-mingw32msvc-g++'
+	env['RANLIB']='i586-mingw32msvc-ranlib'
+	env['LD']='i586-mingw32msvc-ld'
+	env['CC']='i586-mingw32msvc-gcc'
+	env['AR']='i586-mingw32msvc-ar'
+
+# More win32 stuff
+
+
+if (win32 or win32_cross):
+
+	if (win32_msvc):
+		env.Append(CPPFLAGS=['/DWINDOWS_ENABLED'])
+		env.Append(CPPFLAGS=['/DSDL_ENABLED','/Gd'])
+	else:
+		env.Append(CPPFLAGS=['-DWINDOWS_ENABLED'])
+		env.Append(CPPFLAGS=['-DSDL_ENABLED'])
+		env.Append(CPPFLAGS=['-I SDL'])
+
+	if (env['vst_enabled']):
+		if (win32_msvc):
+			env.Append(CPPFLAGS=['/DVST_ENABLED'])
+		else:
+			env.Append(CPPFLAGS=['-DVST_ENABLED'])
+	
+		env.Append(CPPPATH=['#drivers/vst'])
+
+	if (env["asio_enabled"]):
+		if (win32_msvc):
+			env.Append(CPPFLAGS=['/DASIO_ENABLED'])
+		else:
+			env.Append(CPPFLAGS=['-DASIO_ENABLED'])
+	
+		env.Append(CPPPATH=['#drivers/asio','#drivers/asio/host','#drivers/asio/host/mac','#drivers/asio/host/pc','#drivers/asio/common'])
+		env.asio_enabled=True
+		
+else:
+
+       	env.Append(CPPFLAGS=['-DPOSIX_ENABLED'])
+	
+        # Under Win32, Assume it exists.
+	errorval=os.system("pkg-config --version > /dev/null");
+
+	if (errorval):
+		print "**Error: cant execute pkg-config, please install pkg-config!"
+		sys.exit(1);
+	     
+	# SDL
+	
+	
+	if (False and not win32 and not win32_cross and env['jack']):
+	
+		errorval=os.system("pkg-config jack --modversion");
+	
+	        if (errorval):
+	                print "Error: cant execute pkg-config to check for JACK, make sure pkg-config and JACK are installed";
+	                exit(255);
+	
+		env.ParseConfig('pkg-config jack --cflags --libs')
+		env.Append(CPPFLAGS=['-DJACK_ENABLED']);
+	
+	# Common Variables        
+
+
+env.Append(CPPPATH=['#types','#'])
+
+if (not win32_msvc):
+
+	if (env['debug']):
+       		env.Append(CPPFLAGS=['-g3','-Wall'])
+	if (env['optimize']):
+       		env.Append(CPPFLAGS=['-O2','-ffast-math'])
+                
+        # get rid of annoying warning
+	env.Append(CPPFLAGS=['-fno-exceptions','-Wno-sign-compare']);
+        	
+# TODO
+        
+env.EnableQt4Modules([
+	"QtGui",
+	"QtCore",
+	],
+	debug=False
+	)
+
+# Libraties to be generated
+
+
+if (win32_cross):
+	env.Append(LIBS=['mingw32','SDLmain','SDL','m']);
+
+
+env.__class__.find_source_files = find_source_files
+
+#env.Append(CXXFLAGS=['-DGUI_EXTERNAL_STRING="\\\"types/rstring.h\\\""']);
+
+env.bin_targets=[]
+env.libs=[]
+
+Export('env');
+
+SConscript('types/SCsub');
+SConscript('dsp/SCsub');
+SConscript('engine/SCsub');
+SConscript('editor/SCsub');
+SConscript('drivers/SCsub');
+SConscript('nodes/SCsub');
+SConscript('gui/SCsub');
+#SConscript('gui_common/SCsub');
+#SConscript('gui_main/SCsub');
+#SConscript('gui_nodes/SCsub');
+SConscript('bin/SCsub');
+
+
+if (env['prefix']):
+	dst_target = env.Install(env['prefix']+'/bin', env.bin_targets)
+	env.Alias('install', dst_target )
+

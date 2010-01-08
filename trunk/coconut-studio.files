@@ -7,3 +7,5 @@ types/error_macros.h
 types/error_list.h
 types/typedefs.h
 types/rstring.cpp
+dsp/frame.h
+dsp/event.h

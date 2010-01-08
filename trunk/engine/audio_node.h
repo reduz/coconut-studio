@@ -2,6 +2,12 @@
 #define AUDIO_NODE_H
 
 #include "rstring.h"
+#include <vector>
+#include "dsp/frame.h"
+#include "dsp/event.h"
+#include "tree_loader.h"
+#include "tree_saver.h"
+
 
 class AudioNode;
 
@@ -75,8 +81,8 @@ protected:
 friend class AudioGraph;
 
 	// these functions are called when entering and exiting from the audio graph.
-	virtual void graph_enter();
-	virtual void graph_exit();
+	virtual void graph_enter() {}
+	virtual void graph_exit() {}
 public:
 	/* Audio Port API */
 
@@ -84,8 +90,8 @@ public:
 	virtual int get_out_audio_port_count() const=0;
 
 	//stereo or mono
-	virtual AudioFrameType get_in_audio_port_frame_type(int p_port) const=0;
-	virtual AudioFrameType get_out_audio_port_frame_type(int p_port) const=0;
+	virtual FrameType get_in_audio_port_frame_type(int p_port) const=0;
+	virtual FrameType get_out_audio_port_frame_type(int p_port) const=0;
 
 	virtual void set_in_audio_port_buffer(int p_port, const void *p_buffer)=0;
 	virtual void set_out_audio_port_buffer(int p_port, void *p_buffer)=0;
@@ -93,10 +99,10 @@ public:
 	/* Event Port API */
 
 	virtual int get_in_event_port_count() const=0;
-	virtual int get_out_event_port_count() const;
+	virtual int get_out_event_port_count() const=0;
 
-	virtual void set_in_event_port_buffer(int p_port, const MusicEvent *p_buffer)=0;
-	virtual void set_out_event_port_buffer(int p_port, MusicEvent *p_buffer)=0;
+	virtual void set_in_event_port_buffer(int p_port, const Event *p_buffer)=0;
+	virtual void set_out_event_port_buffer(int p_port, Event *p_buffer)=0;
 
 	/* Control Port API */
 
@@ -110,7 +116,7 @@ public:
 
 	// hint/info
 
-	virtual void set_in_control_port_normalized(int p_port, p_value);
+	virtual void set_in_control_port_normalized(int p_port, float p_value);
 	virtual float get_in_control_port_normalized(int p_port) const;
 	virtual float get_out_control_port_normalized(int p_port) const;
 

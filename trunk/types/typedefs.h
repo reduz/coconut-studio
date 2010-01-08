@@ -20,11 +20,15 @@
 */
 
 #if defined(__GNUC__) && (__GNUC__ >= 4 )
-#    define _FORCE_INLINE_ __attribute__((always_inline)) inline
+#    define SIMD_INLINE __attribute__((always_inline)) inline
+#    define SIMD_ALIGN __attribute__((aligned(16)))
+
 #elif defined(_MSC_VER)
-#	define _FORCE_INLINE_ __forceinline
+#	define SIMD_INLINE __forceinline
+#error no idea how to align in MSVC, find out
 #else
-#    define _FORCE_INLINE_ inline
+#    define SIMD_INLINE inline
+#    define SIMD_ALIGN
 #endif
 
 

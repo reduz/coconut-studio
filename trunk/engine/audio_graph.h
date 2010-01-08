@@ -1,8 +1,7 @@
 #ifndef AUDIO_GRAPH_H
 #define AUDIO_GRAPH_H
 
-class AudioGraph
-{
+class AudioGraph {
 public:
     AudioGraph();
 };

@@ -1,0 +1,5 @@
+Import('env')
+
+res = env.Program('coconut', ['coconut.cpp']);
+env.bin_targets+=[res]
+
