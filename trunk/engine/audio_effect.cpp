@@ -3,3 +3,7 @@
 AudioEffect::AudioEffect()
 {
 }
+
+AudioEffect::~AudioEffect()
+{
+}

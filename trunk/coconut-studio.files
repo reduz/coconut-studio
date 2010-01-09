@@ -9,3 +9,5 @@ types/typedefs.h
 types/rstring.cpp
 dsp/frame.h
 dsp/event.h
+engine/audio_effect.h
+engine/audio_effect.cpp
