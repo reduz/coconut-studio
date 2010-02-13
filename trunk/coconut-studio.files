@@ -11,3 +11,5 @@ dsp/frame.h
 dsp/event.h
 engine/audio_effect.h
 engine/audio_effect.cpp
+engine/track.h
+engine/track.cpp
