@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>509</width>
+    <height>466</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralWidget">
+   <layout class="QHBoxLayout" name="horizontalLayout_2">
+    <property name="spacing">
+     <number>0</number>
+    </property>
+    <property name="margin">
+     <number>0</number>
+    </property>
+    <item>
+     <widget class="QMdiArea" name="mdiArea"/>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="main_menu_bar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>509</width>
+     <height>24</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuSong">
+    <property name="title">
+     <string>Song</string>
+    </property>
+    <addaction name="action_new_song"/>
+    <addaction name="action_open_song"/>
+    <addaction name="action_save_song"/>
+    <addaction name="action_save_song_as"/>
+    <addaction name="action_close_song"/>
+    <addaction name="separator"/>
+    <addaction name="action_quit"/>
+   </widget>
+   <widget class="QMenu" name="menuEdit">
+    <property name="title">
+     <string>Edit</string>
+    </property>
+    <addaction name="icon_add_track"/>
+    <addaction name="separator"/>
+   </widget>
+   <widget class="QMenu" name="menuPlayback">
+    <property name="title">
+     <string>Playback</string>
+    </property>
+    <addaction name="action_play"/>
+    <addaction name="action_play_pattern"/>
+    <addaction name="action_play_cursor"/>
+    <addaction name="action_stop"/>
+    <addaction name="separator"/>
+    <addaction name="action_record"/>
+    <addaction name="action_loop"/>
+    <addaction name="separator"/>
+    <addaction name="action_rewind"/>
+    <addaction name="action_advance"/>
+   </widget>
+   <widget class="QMenu" name="menuTrack">
+    <property name="title">
+     <string>Track</string>
+    </property>
+    <addaction name="icon_add_track"/>
+   </widget>
+   <addaction name="menuSong"/>
+   <addaction name="menuTrack"/>
+   <addaction name="menuEdit"/>
+   <addaction name="menuPlayback"/>
+  </widget>
+  <widget class="QStatusBar" name="statusBar"/>
+  <widget class="QToolBar" name="main_toolbar">
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>true</bool>
+   </attribute>
+   <addaction name="action_new_song"/>
+   <addaction name="action_open_song"/>
+   <addaction name="action_save_song"/>
+   <addaction name="action_close_song"/>
+   <addaction name="separator"/>
+   <addaction name="action_rewind"/>
+   <addaction name="action_play"/>
+   <addaction name="action_stop"/>
+   <addaction name="action_record"/>
+   <addaction name="action_advance"/>
+   <addaction name="action_loop"/>
+   <addaction name="separator"/>
+   <addaction name="action_play_pattern"/>
+   <addaction name="action_play_cursor"/>
+   <addaction name="separator"/>
+   <addaction name="icon_add_track"/>
+  </widget>
+  <action name="action_play">
+   <property name="icon">
+    <iconset resource="resources/icons.qrc">
+     <normaloff>:/icons/control_play.png</normaloff>:/icons/control_play.png</iconset>
+   </property>
+   <property name="text">
+    <string>Play</string>
+   </property>
+   <property name="toolTip">
+    <string>Play Song</string>
+   </property>
+   <property name="shortcut">
+    <string>F5</string>
+   </property>
+  </action>
+  <action name="action_rewind">
+   <property name="icon">
+    <iconset resource="resources/icons.qrc">
+     <normaloff>:/icons/control_rw.png</normaloff>:/icons/control_rw.png</iconset>
+   </property>
+   <property name="text">
+    <string>Rewind</string>
+   </property>
+   <property name="shortcut">
+    <string>Alt+-</string>
+   </property>
+  </action>
+  <action name="action_stop">
+   <property name="icon">
+    <iconset resource="resources/icons.qrc">
+     <normaloff>:/icons/control_stop.png</normaloff>:/icons/control_stop.png</iconset>
+   </property>
+   <property name="text">
+    <string>Stop</string>
+   </property>
+   <property name="shortcut">
+    <string>F8</string>
+   </property>
+  </action>
+  <action name="action_advance">
+   <property name="icon">
+    <iconset resource="resources/icons.qrc">
+     <normaloff>:/icons/control_ff.png</normaloff>:/icons/control_ff.png</iconset>
+   </property>
+   <property name="text">
+    <string>Advance</string>
+   </property>
+   <property name="shortcut">
+    <string>Alt+-</string>
+   </property>
+  </action>
+  <action name="action_play_pattern">
+   <property name="icon">
+    <iconset resource="resources/icons.qrc">
+     <normaloff>:/icons/control_play_cursor.png</normaloff>:/icons/control_play_cursor.png</iconset>
+   </property>
+   <property name="text">
+    <string>Play Pattern</string>
+   </property>
+   <property name="shortcut">
+    <string>F6</string>
+   </property>
+  </action>
+  <action name="action_play_cursor">
+   <property name="icon">
+    <iconset resource="resources/icons.qrc">
+     <normaloff>:/icons/control_play_pattern.png</normaloff>:/icons/control_play_pattern.png</iconset>
+   </property>
+   <property name="text">
+    <string>Play Cursor</string>
+   </property>
+   <property name="shortcut">
+    <string>F7</string>
+   </property>
+  </action>
+  <action name="icon_add_track">
+   <property name="icon">
+    <iconset resource="resources/icons.qrc">
+     <normaloff>:/icons/icon_add.png</normaloff>:/icons/icon_add.png</iconset>
+   </property>
+   <property name="text">
+    <string>Add Track</string>
+   </property>
+  </action>
+  <action name="action_record">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="resources/icons.qrc">
+     <normaloff>:/icons/control_rec.png</normaloff>:/icons/control_rec.png</iconset>
+   </property>
+   <property name="text">
+    <string>Record</string>
+   </property>
+  </action>
+  <action name="action_open_song">
+   <property name="icon">
+    <iconset resource="resources/icons.qrc">
+     <normaloff>:/icons/icon_open.png</normaloff>:/icons/icon_open.png</iconset>
+   </property>
+   <property name="text">
+    <string>Open Song</string>
+   </property>
+  </action>
+  <action name="action_new_song">
+   <property name="icon">
+    <iconset resource="resources/icons.qrc">
+     <normaloff>:/icons/icon_new.png</normaloff>:/icons/icon_new.png</iconset>
+   </property>
+   <property name="text">
+    <string>New Song</string>
+   </property>
+  </action>
+  <action name="action_save_song">
+   <property name="icon">
+    <iconset resource="resources/icons.qrc">
+     <normaloff>:/icons/icon_save.png</normaloff>:/icons/icon_save.png</iconset>
+   </property>
+   <property name="text">
+    <string>Save Song</string>
+   </property>
+  </action>
+  <action name="action_save_song_as">
+   <property name="text">
+    <string>Save Song As</string>
+   </property>
+  </action>
+  <action name="action_close_song">
+   <property name="icon">
+    <iconset resource="resources/icons.qrc">
+     <normaloff>:/icons/icon_close.png</normaloff>:/icons/icon_close.png</iconset>
+   </property>
+   <property name="text">
+    <string>Close Song</string>
+   </property>
+  </action>
+  <action name="action_quit">
+   <property name="text">
+    <string>Quit</string>
+   </property>
+  </action>
+  <action name="action_loop">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="resources/icons.qrc">
+     <normaloff>:/icons/control_loop.png</normaloff>:/icons/control_loop.png</iconset>
+   </property>
+   <property name="text">
+    <string>Loop</string>
+   </property>
+  </action>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <resources>
+  <include location="resources/icons.qrc"/>
+ </resources>
+ <connections/>
+</ui>

@@ -1,0 +1,24 @@
+<RCC>
+    <qresource prefix="/icons">
+        <file>control_ff.png</file>
+        <file>control_ff_test.png</file>
+        <file>control_loop.png</file>
+        <file>control_pause.png</file>
+        <file>control_play.png</file>
+        <file>control_play_cursor.png</file>
+        <file>control_play_pattern.png</file>
+        <file>control_rec.png</file>
+        <file>control_rec_auto.png</file>
+        <file>control_rw.png</file>
+        <file>control_stop.png</file>
+        <file>icon_cursor_step.png</file>
+        <file>icon_midi.png</file>
+        <file>icon_volume_mask.png</file>
+        <file>icon_zoom.png</file>
+        <file>icon_add.png</file>
+        <file>icon_close.png</file>
+        <file>icon_new.png</file>
+        <file>icon_open.png</file>
+        <file>icon_save.png</file>
+    </qresource>
+</RCC>
