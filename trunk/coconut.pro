@@ -19,7 +19,9 @@ SOURCES += bin/coconut.cpp \
     engine/audio_effect.cpp \
     engine/song.cpp \
     engine/audio_lock.cpp \
-    engine/pattern_track.cpp
+    engine/pattern_track.cpp \
+    engine/edit_commands.cpp \
+    engine/undo_redo.cpp
 HEADERS += gui_main/main_window.h \
     gui_main/song_window.h \
     gui_main/pattern_editor.h \
@@ -39,7 +41,10 @@ HEADERS += gui_main/main_window.h \
     globals/vector.h \
     globals/map.h \
     engine/audio_lock.h \
-    engine/pattern_track.h
+    engine/pattern_track.h \
+    engine/edit_commands.h \
+    engine/undo_redo.h \
+    globals/list.h
 FORMS += gui_main/main_window.ui \
     gui_main/song_window.ui
 RESOURCES += gui_main/resources/icons.qrc
