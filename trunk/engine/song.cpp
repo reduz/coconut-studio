@@ -45,6 +45,7 @@ void Song::pattern_set_measure(int p_pattern, int p_measure) {
 
 	_check_delete_pattern_config(p_pattern);
 }
+
 int Song::pattern_get_measure(int p_pattern) const {
 
 	if (!pattern_config.has(p_pattern))
