@@ -44,7 +44,8 @@ HEADERS += gui_main/main_window.h \
     engine/pattern_track.h \
     engine/edit_commands.h \
     engine/undo_redo.h \
-    globals/list.h
+    globals/list.h \
+    globals/simple_type.h
 FORMS += gui_main/main_window.ui \
     gui_main/song_window.ui
 RESOURCES += gui_main/resources/icons.qrc

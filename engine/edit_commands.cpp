@@ -190,3 +190,91 @@ void EditCommands::song_track_remove(Song *p_song,int p_pos) {
 
 }
 
+void EditCommands::pattern_track_set_note_columns(PatternTrack *p_pattern_track,int p_columns) {
+
+	String action_name = "Pattern Track Set To "+String::num(p_columns)+ " Note Columns";
+	// validate p_pos
+	ERR_FAIL_COND(p_columns<1 || p_columns>256);
+
+	int old_columns=p_pattern_track->get_note_columns();
+
+	add_action(
+		action_name,
+		command(p_pattern_track,&PatternTrack::set_note_columns,p_columns),
+		command(p_pattern_track,&PatternTrack::set_note_columns,old_columns)
+	);
+}
+
+void EditCommands::pattern_track_set_note(PatternTrack *p_pattern_track,int p_pattern, PatternPos p_pos, PatternNote p_note) {
+
+	String action_name; //action too generic
+	// validate p_pos
+
+	PatternNote old_note = p_pattern_track->get_note(p_pattern,p_pos);
+	if (old_note==p_note)
+		return;
+
+	add_action(
+		action_name,
+		command(p_pattern_track,&PatternTrack::set_note,p_pattern,p_pos,p_note),
+		command(p_pattern_track,&PatternTrack::set_note,p_pattern,p_pos,old_note)
+	);
+
+}
+
+void EditCommands::pattern_track_set_command_columns(PatternTrack *p_pattern_track,int p_columns) {
+
+	String action_name = "Pattern Track Set To "+String::num(p_columns)+ " Command Columns";
+	// validate p_pos
+	ERR_FAIL_COND(p_columns<0 || p_columns>256);
+
+	int old_columns=p_pattern_track->get_note_columns();
+
+	add_action(
+		action_name,
+		command(p_pattern_track,&PatternTrack::set_note_columns,p_columns),
+		command(p_pattern_track,&PatternTrack::set_note_columns,old_columns)
+	);
+}
+void EditCommands::pattern_track_set_command(PatternTrack *p_pattern_track,int p_pattern, PatternPos p_pos, PatternCommand p_command) {
+
+	String action_name; //action too generic
+	// validate p_pos
+	PatternCommand old_command = p_pattern_track->get_command(p_pattern,p_pos);
+	if (old_command==p_command)
+		return;
+
+	add_action(
+		action_name,
+		command(p_pattern_track,&PatternTrack::set_command,p_pattern,p_pos,p_command),
+		command(p_pattern_track,&PatternTrack::set_command,p_pattern,p_pos,old_command)
+	);
+
+}
+
+void EditCommands::pattern_track_set_swing(PatternTrack *p_pattern_track,float p_swing) {
+
+	String action_name = "Pattern Track Set Swing";
+	// validate p_pos
+	float old_swing=p_pattern_track->get_swing();
+
+	add_action(
+		action_name,
+		command(p_pattern_track,&PatternTrack::set_swing,p_swing),
+		command(p_pattern_track,&PatternTrack::set_swing,old_swing)
+	);
+
+}
+void EditCommands::pattern_track_set_swing_step(PatternTrack *p_pattern_track,int p_swing_step) {
+
+	String action_name = "Pattern Track Set Swing Step";
+	// validate p_pos
+	int old_swing_step=p_pattern_track->get_swing_step();
+
+	add_action(
+		action_name,
+		command(p_pattern_track,&PatternTrack::set_swing_step,p_swing_step),
+		command(p_pattern_track,&PatternTrack::set_swing_step,old_swing_step)
+	);
+
+}
