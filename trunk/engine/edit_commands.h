@@ -8,6 +8,21 @@ class EditCommands : public UndoRedo {
 
 public:
 
+	/* Automation */
+
+	void automation_set_point(Automation *p_automation, int p_pattern, Tick p_offset, float p_value);
+	void automation_remove_point(Automation *p_automation, int p_pattern, Tick p_offset);
+
+	/* Track */
+
+	void track_add_audio_effect(Track *p_track, AudioEffect *p_effect,int p_pos=-1);
+	void track_remove_audio_effect(Track *p_track, int p_pos);
+
+	void track_add_automation(Track *p_track,Automation *p_automation,int p_pos=-1);
+	void track_remove_automation(Track *p_track,int p_pos);
+
+	/* Song */
+
 	void song_pattern_set_beats(Song *p_song, int p_pattern, int p_beats);
 	void song_pattern_set_measure(Song *p_song, int p_pattern, int p_measure);
 	void song_pattern_set_bars(Song *p_song, int p_pattern, int p_bars);
@@ -15,6 +30,7 @@ public:
 	void song_order_set(Song *p_song,int p_order, int p_pattern);
 	void song_track_add(Song *p_song,Track *p_track,int p_pos=-1);
 	void song_track_remove(Song *p_song,int p_pos);
+
 
 
 };

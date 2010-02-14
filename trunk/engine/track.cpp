@@ -29,7 +29,7 @@ float Automation::get_point(int p_pattern, Tick p_offset) const {
 	return data[p_pattern][idx];
 }
 
-void Automation::remove_point(int p_pattern, Tick p_offset, float p_value) {
+void Automation::remove_point(int p_pattern, Tick p_offset) {
 
 	if ( !data.has(p_pattern) )
 		return;
@@ -111,7 +111,7 @@ int Track::get_audio_effect_count() const {
 	return effects.size();
 }
 
-void Track::audio_effect_add(AudioEffect *p_effect,int p_pos) {
+void Track::add_audio_effect(AudioEffect *p_effect,int p_pos) {
 
 	_AUDIO_LOCK_
 
@@ -121,7 +121,7 @@ void Track::audio_effect_add(AudioEffect *p_effect,int p_pos) {
 	effects.insert(p_pos,p_effect);
 }
 
-void Track::audio_effect_remove(int p_pos) {
+void Track::remove_audio_effect(int p_pos) {
 
 	_AUDIO_LOCK_
 	ERR_FAIL_INDEX(p_pos,effects.size());
@@ -139,7 +139,7 @@ void Track::audio_effect_remove(int p_pos) {
 	effects.remove(p_pos);
 }
 
-AudioEffect *Track::audio_effect_get(int p_pos) {
+AudioEffect *Track::get_audio_effect(int p_pos) {
 
 	ERR_FAIL_INDEX_V(p_pos,effects.size(),NULL);
 	return effects[p_pos];
@@ -151,7 +151,7 @@ int Track::get_automation_count() const {
 
 	return automations.size();
 }
-void Track::automation_add(Automation *p_automation,int p_pos) {
+void Track::add_automation(Automation *p_automation,int p_pos) {
 
 	_AUDIO_LOCK_
 	if (p_pos<0)
@@ -160,7 +160,7 @@ void Track::automation_add(Automation *p_automation,int p_pos) {
 	automations.insert(p_pos,p_automation);
 
 }
-void Track::automation_remove(int p_pos) {
+void Track::remove_automation(int p_pos) {
 
 	_AUDIO_LOCK_
 	ERR_FAIL_INDEX(p_pos,automations.size());
@@ -168,7 +168,7 @@ void Track::automation_remove(int p_pos) {
 
 
 }
-Automation *Track::automation_get(int p_pos) {
+Automation *Track::get_automation(int p_pos) {
 
 	ERR_FAIL_INDEX_V(p_pos,automations.size(),NULL);
 	return automations[p_pos];

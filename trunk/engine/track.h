@@ -21,7 +21,7 @@ public:
 	void set_point(int p_pattern, Tick p_offset, float p_value);
 	bool has_point(int p_pattern, Tick p_offset) const;
 	float get_point(int p_pattern, Tick p_offset) const;
-	void remove_point(int p_pattern, Tick p_offset, float p_value);
+	void remove_point(int p_pattern, Tick p_offset);
 
 	Tick get_point_tick_by_index(int p_pattern,int p_index) const;
 	float get_point_by_index(int p_pattern,int p_index) const;
@@ -53,16 +53,16 @@ public:
 	/* audio effects */
 
 	int get_audio_effect_count() const;
-	void audio_effect_add(AudioEffect *p_effect,int p_pos=-1);
-	void audio_effect_remove(int p_pos);
-	AudioEffect *audio_effect_get(int p_pos);
+	void add_audio_effect(AudioEffect *p_effect,int p_pos=-1);
+	void remove_audio_effect(int p_pos);
+	AudioEffect *get_audio_effect(int p_pos);
 
 	/* automations */
 
 	int get_automation_count() const;
-	void automation_add(Automation *p_automation,int p_pos=-1);
-	void automation_remove(int p_pos);
-	Automation *automation_get(int p_pos);
+	void add_automation(Automation *p_automation,int p_pos=-1);
+	void remove_automation(int p_pos);
+	Automation *get_automation(int p_pos);
 
 	virtual int get_internal_automation_count() const=0;
 	virtual Automation *internal_automation_get(int p_pos)=0;

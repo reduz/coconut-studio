@@ -70,7 +70,6 @@
   <valuemap type="QVariantMap">
    <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString">Release</value>
    <value key="QtVersionId" type="int">0</value>
-   <value key="ToolChain" type="int">0</value>
    <value key="addQDumper" type=""></value>
    <value key="buildConfiguration" type="int">0</value>
   </valuemap>
@@ -81,39 +80,38 @@
    <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString">Debug</value>
    <valuelist key="abstractProcess.Environment" type="QVariantList">
     <value type="QString">&lt;VARIABLE>=&lt;VALUE></value>
-    <value type="QString">DBUS_SESSION_BUS_ADDRESS=unix:abstract=/tmp/dbus-6oVDH8CsUX,guid=7ca12a33cc3f9924fdbd8eaa4b76f5ed</value>
-    <value type="QString">DESKTOP_SESSION=default</value>
+    <value type="QString">DBUS_SESSION_BUS_ADDRESS=unix:abstract=/tmp/dbus-iV2QJrdiKD,guid=5472dfb76d69cdf4273841f34b735698</value>
+    <value type="QString">DESKTOP_SESSION=gnome</value>
     <value type="QString">DISPLAY=:0.0</value>
-    <value type="QString">GDMSESSION=default</value>
+    <value type="QString">GDMSESSION=gnome</value>
+    <value type="QString">GDM_KEYBOARD_LAYOUT=us</value>
     <value type="QString">GDM_LANG=en_US.UTF-8</value>
-    <value type="QString">GDM_XSERVER_LOCATION=local</value>
     <value type="QString">GNOME_DESKTOP_SESSION_ID=this-is-deprecated</value>
-    <value type="QString">GNOME_KEYRING_PID=3114</value>
-    <value type="QString">GNOME_KEYRING_SOCKET=/tmp/keyring-kPROkQ/socket</value>
-    <value type="QString">GPG_AGENT_INFO=/tmp/seahorse-kHKTk1/S.gpg-agent:3247:1</value>
+    <value type="QString">GNOME_KEYRING_PID=1852</value>
+    <value type="QString">GNOME_KEYRING_SOCKET=/tmp/keyring-1Q9bMq/socket</value>
     <value type="QString">GTK_MODULES=canberra-gtk-module</value>
     <value type="QString">GTK_RC_FILES=/etc/gtk/gtkrc:/home/red/.gtkrc-1.2-gnome2</value>
     <value type="QString">HOME=/home/red</value>
     <value type="QString">LANG=en_US.UTF-8</value>
-    <value type="QString">LD_LIBRARY_PATH=/home/red/qtcreator-1.2.94/lib/qtcreator:</value>
+    <value type="QString">LD_LIBRARY_PATH=/home/red/.qtcreator-1.3.0/lib/qtcreator:</value>
     <value type="QString">LOGNAME=red</value>
     <value type="QString">ORBIT_SOCKETDIR=/tmp/orbit-red</value>
     <value type="QString">PATH=/usr/bin:/home/red/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games</value>
     <value type="QString">PWD=/home/red</value>
     <value type="QString">QTDIR=/usr/share/qt4</value>
-    <value type="QString">SESSION_MANAGER=local/ayumu:/tmp/.ICE-unix/3126</value>
+    <value type="QString">SESSION_MANAGER=local/mio:@/tmp/.ICE-unix/1867,unix/mio:/tmp/.ICE-unix/1867</value>
     <value type="QString">SHELL=/bin/bash</value>
-    <value type="QString">SSH_AGENT_PID=3224</value>
-    <value type="QString">SSH_AUTH_SOCK=/tmp/keyring-kPROkQ/socket.ssh</value>
+    <value type="QString">SPEECHD_PORT=7060</value>
+    <value type="QString">SSH_AGENT_PID=1911</value>
+    <value type="QString">SSH_AUTH_SOCK=/tmp/keyring-1Q9bMq/socket.ssh</value>
     <value type="QString">USER=red</value>
     <value type="QString">USERNAME=red</value>
-    <value type="QString">WINDOWPATH=7</value>
-    <value type="QString">XAUTHORITY=/home/red/.Xauthority</value>
-    <value type="QString">XDG_DATA_DIRS=/usr/local/share/:/usr/share/:/usr/share/gdm/</value>
-    <value type="QString">XDG_SESSION_COOKIE=57128c0ab42524195e61fd7c4925d9dc-1266087404.702729-147880442</value>
+    <value type="QString">XAUTHORITY=/var/run/gdm/auth-for-red-E8yv52/database</value>
+    <value type="QString">XDG_DATA_DIRS=/usr/share/gnome:/usr/local/share/:/usr/share/</value>
+    <value type="QString">XDG_SESSION_COOKIE=c22cb9b303e38ca8f553628c4b3fe6b2-1265850007.254970-378379486</value>
    </valuelist>
    <valuelist key="abstractProcess.arguments" type="QVariantList">
-    <value type="QString">/home/red/coding/coconut-studio/coconut.pro</value>
+    <value type="QString">/home/red/coding/coconut/coconut.pro</value>
     <value type="QString">-spec</value>
     <value type="QString">linux-g++</value>
     <value type="QString">-r</value>
@@ -121,7 +119,7 @@
    </valuelist>
    <value key="abstractProcess.command" type="QString">/usr/bin/qmake-qt4</value>
    <value key="abstractProcess.enabled" type="bool">false</value>
-   <value key="abstractProcess.workingDirectory" type="QString">/home/red/coding/coconut-studio</value>
+   <value key="abstractProcess.workingDirectory" type="QString">/home/red/coding/coconut</value>
   </valuemap>
  </data>
  <data>
@@ -130,36 +128,35 @@
    <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString">Debug</value>
    <valuelist key="abstractProcess.Environment" type="QVariantList">
     <value type="QString">&lt;VARIABLE>=&lt;VALUE></value>
-    <value type="QString">DBUS_SESSION_BUS_ADDRESS=unix:abstract=/tmp/dbus-6oVDH8CsUX,guid=7ca12a33cc3f9924fdbd8eaa4b76f5ed</value>
-    <value type="QString">DESKTOP_SESSION=default</value>
+    <value type="QString">DBUS_SESSION_BUS_ADDRESS=unix:abstract=/tmp/dbus-iV2QJrdiKD,guid=5472dfb76d69cdf4273841f34b735698</value>
+    <value type="QString">DESKTOP_SESSION=gnome</value>
     <value type="QString">DISPLAY=:0.0</value>
-    <value type="QString">GDMSESSION=default</value>
+    <value type="QString">GDMSESSION=gnome</value>
+    <value type="QString">GDM_KEYBOARD_LAYOUT=us</value>
     <value type="QString">GDM_LANG=en_US.UTF-8</value>
-    <value type="QString">GDM_XSERVER_LOCATION=local</value>
     <value type="QString">GNOME_DESKTOP_SESSION_ID=this-is-deprecated</value>
-    <value type="QString">GNOME_KEYRING_PID=3114</value>
-    <value type="QString">GNOME_KEYRING_SOCKET=/tmp/keyring-kPROkQ/socket</value>
-    <value type="QString">GPG_AGENT_INFO=/tmp/seahorse-kHKTk1/S.gpg-agent:3247:1</value>
+    <value type="QString">GNOME_KEYRING_PID=1852</value>
+    <value type="QString">GNOME_KEYRING_SOCKET=/tmp/keyring-1Q9bMq/socket</value>
     <value type="QString">GTK_MODULES=canberra-gtk-module</value>
     <value type="QString">GTK_RC_FILES=/etc/gtk/gtkrc:/home/red/.gtkrc-1.2-gnome2</value>
     <value type="QString">HOME=/home/red</value>
     <value type="QString">LANG=en_US.UTF-8</value>
-    <value type="QString">LD_LIBRARY_PATH=/home/red/qtcreator-1.2.94/lib/qtcreator:</value>
+    <value type="QString">LD_LIBRARY_PATH=/home/red/.qtcreator-1.3.0/lib/qtcreator:</value>
     <value type="QString">LOGNAME=red</value>
     <value type="QString">ORBIT_SOCKETDIR=/tmp/orbit-red</value>
     <value type="QString">PATH=/usr/bin:/home/red/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games</value>
     <value type="QString">PWD=/home/red</value>
     <value type="QString">QTDIR=/usr/share/qt4</value>
-    <value type="QString">SESSION_MANAGER=local/ayumu:/tmp/.ICE-unix/3126</value>
+    <value type="QString">SESSION_MANAGER=local/mio:@/tmp/.ICE-unix/1867,unix/mio:/tmp/.ICE-unix/1867</value>
     <value type="QString">SHELL=/bin/bash</value>
-    <value type="QString">SSH_AGENT_PID=3224</value>
-    <value type="QString">SSH_AUTH_SOCK=/tmp/keyring-kPROkQ/socket.ssh</value>
+    <value type="QString">SPEECHD_PORT=7060</value>
+    <value type="QString">SSH_AGENT_PID=1911</value>
+    <value type="QString">SSH_AUTH_SOCK=/tmp/keyring-1Q9bMq/socket.ssh</value>
     <value type="QString">USER=red</value>
     <value type="QString">USERNAME=red</value>
-    <value type="QString">WINDOWPATH=7</value>
-    <value type="QString">XAUTHORITY=/home/red/.Xauthority</value>
-    <value type="QString">XDG_DATA_DIRS=/usr/local/share/:/usr/share/:/usr/share/gdm/</value>
-    <value type="QString">XDG_SESSION_COOKIE=57128c0ab42524195e61fd7c4925d9dc-1266087404.702729-147880442</value>
+    <value type="QString">XAUTHORITY=/var/run/gdm/auth-for-red-E8yv52/database</value>
+    <value type="QString">XDG_DATA_DIRS=/usr/share/gnome:/usr/local/share/:/usr/share/</value>
+    <value type="QString">XDG_SESSION_COOKIE=c22cb9b303e38ca8f553628c4b3fe6b2-1265850007.254970-378379486</value>
    </valuelist>
    <value key="abstractProcess.IgnoreReturnValue" type="bool">false</value>
    <valuelist key="abstractProcess.arguments" type="QVariantList">
@@ -167,7 +164,7 @@
    </valuelist>
    <value key="abstractProcess.command" type="QString">/usr/bin/make</value>
    <value key="abstractProcess.enabled" type="bool">true</value>
-   <value key="abstractProcess.workingDirectory" type="QString">/home/red/coding/coconut-studio</value>
+   <value key="abstractProcess.workingDirectory" type="QString">/home/red/coding/coconut</value>
   </valuemap>
  </data>
  <data>
