@@ -1,6 +1,8 @@
 #ifndef SONG_H
 #define SONG_H
 
+#include "track.h"
+
 class Song {
 public:
 
@@ -20,12 +22,15 @@ private:
 		int beats;
 		int measure;
 		int bars;
+		PatternConfig() { beats=DEFAULT_PATTERN_BARS; measure=DEFAULT_SIGNATURE_MEASURE; bars=DEFAULT_PATTERN_BARS; }
 	};
 
 	Map<int,PatternConfig> pattern_config;
 	Map<int,int> order_list;
 
 	Vector<Track*> tracks;
+
+	void _check_delete_pattern_config(int p_pattern);
 
 public:
 
@@ -44,6 +49,7 @@ public:
 	Track *track_get(int p_pos);
 	void track_remove(int p_pos);
 
+	~Song();
 	Song();
 };
 
