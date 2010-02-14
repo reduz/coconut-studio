@@ -97,6 +97,7 @@ int PatternTrack::get_command_columns() const {
 
 void PatternTrack::set_swing(float p_swing) {
 
+	_AUDIO_LOCK_
 	swing=p_swing;
 }
 
@@ -107,6 +108,7 @@ float PatternTrack::get_swing() const {
 
 void PatternTrack::set_swing_step(int p_swing_step) {
 
+	_AUDIO_LOCK_
 	swing_step=p_swing_step;
 }
 int PatternTrack::get_swing_step() const {

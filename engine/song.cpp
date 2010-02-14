@@ -77,6 +77,8 @@ int Song::pattern_get_bars(int p_pattern) const {
 
 void Song::order_set(int p_order, int p_pattern) {
 
+	_AUDIO_LOCK_
+
 	ERR_FAIL_COND(p_order<0 || (p_order>ORDER_MAX && p_order!=ORDER_EMPTY && p_order!=ORDER_SKIP));
 
 	if (p_order==ORDER_EMPTY)
@@ -98,6 +100,8 @@ int Song::get_track_count() const {
 }
 void Song::add_track(Track *p_track,int p_pos) {
 
+	_AUDIO_LOCK_
+
 	if (p_pos<0)
 		p_pos=tracks.size();
 	ERR_FAIL_COND(p_pos>tracks.size());
@@ -109,6 +113,8 @@ Track *Song::get_track(int p_pos) {
 	return tracks[p_pos];
 }
 void Song::remove_track(int p_pos) {
+
+	_AUDIO_LOCK_
 
 	ERR_FAIL_INDEX(p_pos,tracks.size());
 	tracks.remove(p_pos);
