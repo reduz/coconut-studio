@@ -17,7 +17,9 @@ SOURCES += bin/coconut.cpp \
     globals/rstring.cpp \
     engine/track.cpp \
     engine/audio_effect.cpp \
-    engine/song.cpp
+    engine/song.cpp \
+    engine/audio_lock.cpp \
+    engine/pattern_track.cpp
 HEADERS += gui_main/main_window.h \
     gui_main/song_window.h \
     gui_main/pattern_editor.h \
@@ -33,7 +35,11 @@ HEADERS += gui_main/main_window.h \
     engine/track.h \
     engine/audio_effect.h \
     engine/song.h \
-    globals/value_stream.h
+    globals/value_stream.h \
+    globals/vector.h \
+    globals/map.h \
+    engine/audio_lock.h \
+    engine/pattern_track.h
 FORMS += gui_main/main_window.ui \
     gui_main/song_window.ui
 RESOURCES += gui_main/resources/icons.qrc
