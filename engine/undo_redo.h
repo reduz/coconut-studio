@@ -45,9 +45,10 @@ protected:
 		List<CommandDataBase*> command_data;
 	public:
 		template<class T>
-		void add_data(T* p_data) {
+		CommandBase* with_data(T* p_data) {
 		
 			command_data.push_back( new CommandData<T>( p_data ) );		
+			return this;
 		}
 	
 		virtual void call()=0;	

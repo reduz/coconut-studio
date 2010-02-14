@@ -50,10 +50,42 @@ void EditCommands::song_order_set(Song *p_song,int p_order, int p_pattern) {
 }
 void EditCommands::song_track_add(Song *p_song,Track *p_track,int p_pos) {
 
+	String type;
+	switch(p_track->get_type()) {
+		case Track::TYPE_AUDIO: type="Audio"; break;
+		case Track::TYPE_PATTERN: type="Pattern"; break;
+		case Track::TYPE_GLOBAL: type="Global"; break;
+	}
+
+	String action_name = "Add "+type+" Track";
+	// validate p_pos
+	if (p_pos<0)
+		p_pos=p_song->get_track_count(); //by default add last
+	else if (p_pos>p_song->get_track_count())
+		p_pos=p_song->get_track_count();
+
+	add_action(
+		action_name,
+		command(p_song,&Song::add_track,p_track,p_pos)->with_data(p_track),
+		command(p_song,&Song::remove_track,p_pos)
+	);
 
 }
 void EditCommands::song_track_remove(Song *p_song,int p_pos) {
 
+	String action_name = "Remove Track "+String::num(p_pos);
+	// validate p_pos
+	if (p_pos<0 || p_pos>=p_song->get_track_count())
+		return;
+
+	Track *track = p_song->get_track(p_pos);
+	ERR_FAIL_COND(!track);
+
+	add_action(
+		action_name,
+		command(p_song,&Song::remove_track,p_pos),
+		command(p_song,&Song::add_track,track,p_pos)->with_data(track)
+	);
 
 }
 
