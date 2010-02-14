@@ -15,12 +15,12 @@ int PatternTrack::get_note_columns() const {
 	return note_columns;
 }
 
-void PatternTrack::note_set(int p_pattern, const EventPos& p_pos, const Note& p_note) {
+void PatternTrack::set_note(int p_pattern, Pos p_pos, Note p_note) {
 
 	_AUDIO_LOCK_
 
 	if (!note_data.has(p_pattern))
-		note_data[p_pattern]=ValueStream<EventPos, Note >();
+		note_data[p_pattern]=ValueStream<Pos, Note >();
 
 	if (p_note.is_empty()) {
 		int idx = note_data[p_pattern].find_exact(p_pos);
@@ -33,9 +33,9 @@ void PatternTrack::note_set(int p_pattern, const EventPos& p_pos, const Note& p_
 	}
 
 }
-Note PatternTrack::note_get(int p_pattern,const EventPos& p_pos) const {
+PatternTrack::Note PatternTrack::get_note(int p_pattern,Pos p_pos) const {
 
-	const Map<int, ValueStream<EventPos, Note > >::Element *E = note_data.find(p_pattern);
+	const Map<int, ValueStream<Pos, Note > >::Element *E = note_data.find(p_pattern);
 
 	if (!E)
 		return Note();
@@ -50,12 +50,12 @@ Note PatternTrack::note_get(int p_pattern,const EventPos& p_pos) const {
 }
 
 
-void PatternTrack::command_set(int p_pattern, const EventPos& p_pos, const Command& p_command) {
+void PatternTrack::set_command(int p_pattern, Pos p_pos, Command p_command) {
 
 	_AUDIO_LOCK_
 
 	if (!command_data.has(p_pattern))
-		command_data[p_pattern]=ValueStream<EventPos, Command >();
+		command_data[p_pattern]=ValueStream<Pos, Command >();
 
 	if (p_command.is_empty()) {
 		int idx = command_data[p_pattern].find_exact(p_pos);
@@ -69,9 +69,9 @@ void PatternTrack::command_set(int p_pattern, const EventPos& p_pos, const Comma
 
 }
 
-Command PatternTrack::command_get(int p_pattern,const EventPos& p_pos) const {
+PatternTrack::Command PatternTrack::get_command(int p_pattern,Pos p_pos) const {
 
-	const Map<int, ValueStream<EventPos, Command > >::Element *E = command_data.find(p_pattern);
+	const Map<int, ValueStream<Pos, Command > >::Element *E = command_data.find(p_pattern);
 
 	if (!E)
 		return Command();
