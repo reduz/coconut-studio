@@ -45,9 +45,9 @@ public:
 	int order_get(int p_order) const;
 
 	int get_track_count() const;
-	void track_add(Track *p_track,int p_pos=-1);
-	Track *track_get(int p_pos);
-	void track_remove(int p_pos);
+	void add_track(Track *p_track,int p_pos=-1);
+	Track *get_track(int p_pos);
+	void remove_track(int p_pos);
 
 	~Song();
 	Song();

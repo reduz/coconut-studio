@@ -96,19 +96,19 @@ int Song::get_track_count() const {
 
 	return tracks.size();
 }
-void Song::track_add(Track *p_track,int p_pos) {
+void Song::add_track(Track *p_track,int p_pos) {
 
 	if (p_pos<0)
 		p_pos=tracks.size();
 	ERR_FAIL_COND(p_pos>tracks.size());
 	tracks.insert(p_pos,p_track);
 }
-Track *Song::track_get(int p_pos) {
+Track *Song::get_track(int p_pos) {
 
 	ERR_FAIL_INDEX_V(p_pos,tracks.size(),NULL);
 	return tracks[p_pos];
 }
-void Song::track_remove(int p_pos) {
+void Song::remove_track(int p_pos) {
 
 	ERR_FAIL_INDEX(p_pos,tracks.size());
 	tracks.remove(p_pos);
