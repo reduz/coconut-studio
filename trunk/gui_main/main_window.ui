@@ -32,7 +32,7 @@
      <x>0</x>
      <y>0</y>
      <width>509</width>
-     <height>24</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuSong">
@@ -95,7 +95,7 @@
     <enum>TopToolBarArea</enum>
    </attribute>
    <attribute name="toolBarBreak">
-    <bool>true</bool>
+    <bool>false</bool>
    </attribute>
    <addaction name="action_new_song"/>
    <addaction name="action_open_song"/>
@@ -109,8 +109,8 @@
    <addaction name="action_advance"/>
    <addaction name="action_loop"/>
    <addaction name="separator"/>
-   <addaction name="action_play_pattern"/>
    <addaction name="action_play_cursor"/>
+   <addaction name="action_play_pattern"/>
    <addaction name="separator"/>
    <addaction name="icon_add_track"/>
   </widget>
