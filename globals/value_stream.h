@@ -14,7 +14,7 @@
 #ifndef VALUE_STREAM_H
 #define VALUE_STREAM_H
 
-#include <vector>
+#include "vector.h"
 #include "error_macros.h"
 #include "typedefs.h"
 
@@ -28,7 +28,7 @@ private:
 	};
 
 
-	std::vector<Value> stream;
+	Vector<Value> stream;
 
 	_FORCE_INLINE_ int find_internal(T p_pos,bool &p_exact) const;
 public:
@@ -105,14 +105,12 @@ int ValueStream<T,V>::insert(T p_pos,V p_value) {
 		if (pos==stream.size())
 			stream.push_back(new_v); //it's at the end, just pushit back
 		else
-			stream.insert(stream.begin()+pos,new_v);
+			stream.insert(pos,new_v);
 	} else {
 		
 		stream[pos]=new_v; /* Overwrite, sine exact position */
 	}
 
-	value_stream_global_unlock();
-	
 	return pos;
 	
 }
@@ -160,8 +158,7 @@ template<class T, class V>
 void ValueStream<T,V>::erase(int p_index) {
 
     ERR_FAIL_INDEX(p_index,stream.size());
-    stream.erase( stream.begin() + p_index );
-    value_stream_global_unlock();
+    stream.remove( p_index );
 	
 }
 

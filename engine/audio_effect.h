@@ -31,8 +31,6 @@ struct PortRangeHint {
 
 
 class ControlPort {
-
-	bool visible;
 public:
 
 	enum Hint {
@@ -54,11 +52,9 @@ public:
 	virtual void set_normalized(float p_val,bool p_make_initial=false); // set in range 0-1, internally converted to range
 	virtual float get_normalized() const;
 
-	virtual String get_value_as_text(float p_value) const;
+	virtual String convert_value_to_text(float p_value) const;
+	virtual String get_value_as_text() const;
 	virtual Hint get_hint() const;
-
-	virtual void set_visible(bool p_visible);
-	virtual bool is_visible() const;
 
 	ControlPort();
 	virtual ~ControlPort();
@@ -77,7 +73,7 @@ public:
 
 	virtual int get_control_port_count() const=0;
 	virtual ControlPort* get_control_port(int p_port)=0;
-	const ControlPort* get_control_port(int p_port) const;
+	const ControlPort* get_control_port(int p_port) const; //const
 
 	virtual void set_mix_rate(float p_hz)=0;
 	virtual void set_block_size(int p_size)=0;
