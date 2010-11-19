@@ -2,22 +2,30 @@
 #define SONG_WINDOW_H
 
 #include <QWidget>
-
+#include "engine/song.h"
 namespace Ui {
     class SongWindow;
 }
 
 class SongWindow : public QWidget {
     Q_OBJECT
-public:
-    SongWindow(QWidget *parent = 0);
-    ~SongWindow();
+private:
+	Ui::SongWindow *ui;
+
+
+	Song song;
 
 protected:
     void changeEvent(QEvent *e);
 
-private:
-    Ui::SongWindow *ui;
+
+public:
+
+
+
+	SongWindow(QWidget *parent = 0);
+	~SongWindow();
+
 };
 
 #endif // SONG_WINDOW_H

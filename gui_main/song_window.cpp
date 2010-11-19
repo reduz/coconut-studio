@@ -6,6 +6,11 @@ SongWindow::SongWindow(QWidget *parent) :
     ui(new Ui::SongWindow)
 {
     ui->setupUi(this);
+
+    ui->pattern_editor->set_h_scroll(ui->pattern_h_scroll);
+    ui->pattern_editor->set_v_scroll(ui->pattern_v_scroll);
+    ui->pattern_editor->set_song(&song);
+
 }
 
 SongWindow::~SongWindow()

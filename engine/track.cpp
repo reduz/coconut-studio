@@ -97,6 +97,16 @@ AudioEffect *Automation::get_owner() {
 }
 
 
+bool Automation::is_visible() const {
+
+	return visible;
+}
+
+Automation::DisplayMode Automation::get_display_mode() const {
+
+	return display_mode;
+}
+
 Automation::Automation(ControlPort *p_port, AudioEffect *p_owner) {
 
 	port=p_port;

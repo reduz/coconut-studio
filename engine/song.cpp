@@ -5,13 +5,13 @@ void Song::_check_delete_pattern_config(int p_pattern) {
 
 	if (!pattern_config.has(p_pattern))
 		return;
-	if (pattern_config[p_pattern].beats==DEFAULT_SIGNATURE_BEATS && pattern_config[p_pattern].measure==DEFAULT_SIGNATURE_MEASURE && pattern_config[p_pattern].bars==DEFAULT_PATTERN_BARS ) {
+	if (pattern_config[p_pattern].beats_per_bar==DEFAULT_BEATS_PER_BAR && pattern_config[p_pattern].bars==DEFAULT_PATTERN_BARS ) {
 
 		pattern_config.erase(p_pattern);
 	}
 }
 
-void Song::pattern_set_beats(int p_pattern, int p_beats) {
+void Song::pattern_set_beats_per_bar(int p_pattern, int p_beats_per_bar) {
 
 	_AUDIO_LOCK_
 
@@ -19,39 +19,17 @@ void Song::pattern_set_beats(int p_pattern, int p_beats) {
 		pattern_config[p_pattern]=PatternConfig();
 
 
-	pattern_config[p_pattern].beats=p_beats;
+	pattern_config[p_pattern].beats_per_bar=p_beats_per_bar;
 
 	_check_delete_pattern_config(p_pattern);
 }
 
-int Song::pattern_get_beats(int p_pattern) const {
-
-
-	if (!pattern_config.has(p_pattern))
-		return DEFAULT_SIGNATURE_BEATS;
-
-	return pattern_config[p_pattern].beats;
-
-}
-void Song::pattern_set_measure(int p_pattern, int p_measure) {
-
-	_AUDIO_LOCK_
+int Song::pattern_get_beats_per_bar(int p_pattern) const {
 
 	if (!pattern_config.has(p_pattern))
-		pattern_config[p_pattern]=PatternConfig();
+		return DEFAULT_BEATS_PER_BAR;
 
-
-	pattern_config[p_pattern].measure=p_measure;
-
-	_check_delete_pattern_config(p_pattern);
-}
-
-int Song::pattern_get_measure(int p_pattern) const {
-
-	if (!pattern_config.has(p_pattern))
-		return DEFAULT_SIGNATURE_MEASURE;
-
-	return pattern_config[p_pattern].measure;
+	return pattern_config[p_pattern].beats_per_bar;
 
 }
 void Song::pattern_set_bars(int p_pattern, int p_bars) {

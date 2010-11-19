@@ -1,5 +1,5 @@
 #include "edit_commands.h"
-
+#if 0
 void EditCommands::automation_set_point(Automation *p_automation, int p_pattern, Tick p_offset, float p_value) {
 
 	String action_name; // action is too generic, for performance and memory, name is omitted.
@@ -278,3 +278,4 @@ void EditCommands::pattern_track_set_swing_step(PatternTrack *p_pattern_track,in
 	);
 
 }
+#endif

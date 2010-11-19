@@ -7,8 +7,7 @@ class Song {
 public:
 
 	enum {
-		DEFAULT_SIGNATURE_BEATS=4,
-		DEFAULT_SIGNATURE_MEASURE=4,
+		DEFAULT_BEATS_PER_BAR=4,
 		DEFAULT_PATTERN_BARS=4,
 		ORDER_MAX=(1<<16),
 		ORDER_EMPTY=0xFFFFF,
@@ -19,10 +18,9 @@ private:
 
 	struct PatternConfig {
 
-		int beats;
-		int measure;
+		int beats_per_bar;
 		int bars;
-		PatternConfig() { beats=DEFAULT_PATTERN_BARS; measure=DEFAULT_SIGNATURE_MEASURE; bars=DEFAULT_PATTERN_BARS; }
+		PatternConfig() { beats_per_bar=DEFAULT_BEATS_PER_BAR; bars=DEFAULT_PATTERN_BARS; }
 	};
 
 	Map<int,PatternConfig> pattern_config;
@@ -34,10 +32,8 @@ private:
 
 public:
 
-	void pattern_set_beats(int p_pattern, int p_beats);
-	int pattern_get_beats(int p_pattern) const;
-	void pattern_set_measure(int p_pattern, int p_measure);
-	int pattern_get_measure(int p_pattern) const;
+	void pattern_set_beats_per_bar(int p_pattern, int p_beats_per_bar);
+	int pattern_get_beats_per_bar(int p_pattern) const;
 	void pattern_set_bars(int p_pattern, int p_bars);
 	int pattern_get_bars(int p_pattern) const;
 
