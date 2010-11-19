@@ -5,7 +5,7 @@
 #include "song.h"
 #include "pattern_track.h"
 
-
+#if 0
 class EditCommands : public UndoRedo {
 
 
@@ -49,4 +49,5 @@ public:
 
 };
 
+#endif
 #endif // EDIT_COMMANDS_H

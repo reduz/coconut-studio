@@ -11,9 +11,19 @@
 typedef uint64_t Tick;
 
 class Automation {
+public:
 
+	enum DisplayMode {
+		DISPLAY_ROWS,
+		DISPLAY_SMALL,
+		DISPLAY_LARGE
+	};
+
+private:
 	AudioEffect *owner;
 	ControlPort *port;
+	DisplayMode display_mode;
+	bool visible;
 
 	Map<int,ValueStream<Tick,float> > data;
 public:
@@ -30,6 +40,10 @@ public:
 
 	ControlPort *get_control_port();
 	AudioEffect *get_owner();
+
+
+	bool is_visible() const;
+	DisplayMode get_display_mode() const;
 
 	Automation(ControlPort *p_port, AudioEffect *p_owner=NULL);
 
