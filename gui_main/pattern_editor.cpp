@@ -2,7 +2,6 @@
 #include <QPainter>
 #include <QSettings>
 #include "gui_main/gui_helpers.h"
-#include "engine/pattern_track.h"
 #include <stdio.h>
 
 int PatternEditor::compute_width() {

@@ -100,6 +100,28 @@ Track *Song::get_track(int p_idx) {
 	return tracks[p_idx];
 }
 
+int Song::get_event_column_count() const {
+
+	int cc=0;
+	for(int i=0;i<tracks.size();i++)
+		cc+=tracks[i]->get_event_column_count();
+
+	return cc;
+}
+void Song::set_event(int p_pattern, int p_column, Tick p_pos, const Track::Event& p_event) {
+
+
+}
+Track::Event Song::get_event(int p_pattern,int p_column, Tick p_pos) const {
+
+	return Track::Event();
+}
+void Song::get_events_in_range(int p_pattern,const Track::Pos& p_from,const Track::Pos& p_to,List<Track::PosEvent> *r_events ) const {
+
+
+}
+
+
 Song::~Song() {
 
 	for(int i=0;i<tracks.size();i++)
