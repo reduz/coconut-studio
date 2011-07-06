@@ -1,6 +1,6 @@
 #include "pattern_track.h"
 
-
+#if 0
 void PatternTrack::set_note_columns(int p_columns) {
 
 	_AUDIO_LOCK_
@@ -49,41 +49,44 @@ PatternTrack::Note PatternTrack::get_note(int p_pattern,Pos p_pos) const {
 
 }
 
+void PatternTrack::get_notes_in_range(int p_pattern,const Pos& p_from,const Pos& p_to,List<PosNote> *r_notes ) const {
 
-void PatternTrack::set_command(int p_pattern, Pos p_pos, Command p_command) {
-
-	_AUDIO_LOCK_
-
-	if (!command_data.has(p_pattern))
-		command_data[p_pattern]=ValueStream<Pos, Command >();
-
-	if (p_command.is_empty()) {
-		int idx = command_data[p_pattern].find_exact(p_pos);
-		if (idx<0)
-			return;
-
-		command_data[p_pattern].erase(idx);
-	} else {
-		command_data[p_pattern].insert(p_pos,p_command);
+	Pos from = p_from;
+	Pos to = p_to;
+	if (from.column>to.column) {
+		SWAP(from.column,to.column);
+	}
+	if (from.tick>to.tick) {
+		SWAP(from.tick,to.tick);
 	}
 
-}
-
-PatternTrack::Command PatternTrack::get_command(int p_pattern,Pos p_pos) const {
-
-	const Map<int, ValueStream<Pos, Command > >::Element *E = command_data.find(p_pattern);
+	const Map<int, ValueStream<Pos, Note > >::Element *E = note_data.find(p_pattern);
 
 	if (!E)
-		return Command();
+		return; //nothing! (no pattern i guess)
 
+	const ValueStream<Pos, Note > &vs=E->get();
 
-	int idx = E->get().find_exact(p_pos);
+	int idx = vs.find(p_from);
 	if (idx<0)
-		return Command();
-	else
-		return E->get()[idx];
+		idx++;
+	while(idx<vs.size() && vs.get_pos(idx).tick<to.tick) {
+
+		int c = vs.get_pos(idx).column;
+		if (c>=from.column && c<=to.column) {
+
+			PosNote n;
+			n.pos=vs.get_pos(idx);
+			n.note=vs[idx];
+			r_notes->push_back(n);
+		}
+
+		idx++;
+	}
+
 
 }
+
 
 void PatternTrack::set_command_columns(int p_columns) {
 
@@ -123,3 +126,4 @@ PatternTrack::PatternTrack() {
 	note_columns=1;
 	command_columns=0;
 }
+#endif

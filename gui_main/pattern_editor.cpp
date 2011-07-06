@@ -6,7 +6,7 @@
 #include <stdio.h>
 
 int PatternEditor::compute_width() {
-
+#if 0
 	int w=0;
 	QFont f = get_default_font("pattern_editor/font",default_font);
 	QFontMetrics fm(f);
@@ -49,6 +49,8 @@ int PatternEditor::compute_width() {
 			}
 		}
 	}
+
+#endif
 }
 
 
@@ -144,9 +146,79 @@ void PatternEditor::paintEvent(QPaintEvent *) {
 	}
 
 	//draw all tracks (At least the visible ones)
-	int ofs = (time_w + 1 ) * fw;
+	int x = (time_w + 1 ) * fw;
+
+#if 0
+	for(int i=0;i<song->get_track_count();i++) {
+
+		Track *t = song->get_track(i);
+//		w+=fh+fw*2; //separate
 
 
+
+		for(int j=0;j<visible_rows;j++) {
+
+			int idx = i + ofs_y;
+			int lx=0;
+			QColor color;
+			QString text;
+			Tick from_tick = idx * TICKS_PER_BEAT / zoom;
+			Tick to_tick = (idx+1) * TICKS_PER_BEAT / zoom;
+
+			switch(t->get_type()) {
+
+
+				case Track::TYPE_GLOBAL: { break; }
+				case Track::TYPE_PATTERN: {
+
+
+					PatternTrack *pt = dynamic_cast<PatternTrack*>(t);
+
+					int note_colums = pt->get_note_columns();
+
+					for(int k=0;k<note_colums;k++) {
+
+						List<PatternTrack::PosNote> notes;
+						PatternTrack::Pos from,to;
+						from.column=k;
+						from.tick=from_tick;
+						from.column=k;
+						to.tick=to_tick;
+						pt->get_notes_in_range(pattern,from,to,&notes);
+
+						if (notes.size()>1) {
+
+							//draw multiple notes! (zoom too large)
+
+						} else if (notes.size()==1) {
+
+							//draw single note
+						}
+					}
+
+					int command_colums = pt->get_command_columns();
+					//w+=command_colums*fw*4;
+
+				} break;
+			}
+		}
+
+/*
+		for(int i=0;i<t->get_automation_count();i++) {
+
+			Automation *a = t->get_automation(i);
+			if (!a->is_visible())
+				continue;
+
+			switch(a->get_display_mode()) {
+				case Automation::DISPLAY_ROWS:
+				case Automation::DISPLAY_SMALL: w+=fw*4; break;
+				case Automation::DISPLAY_LARGE: w+=fw*7; break;
+			}
+		}
+		*/
+	}
+#endif
 
 
 }

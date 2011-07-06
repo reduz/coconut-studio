@@ -16,6 +16,7 @@ public:
 
 private:
 
+
 	struct PatternConfig {
 
 		int beats_per_bar;
@@ -41,9 +42,10 @@ public:
 	int order_get(int p_order) const;
 
 	int get_track_count() const;
-	void add_track(Track *p_track,int p_pos=-1);
-	Track *get_track(int p_pos);
-	void remove_track(int p_pos);
+
+	void add_track(Track *p_track);
+	void remove_track(int p_idx);
+	Track *get_track(int p_idx);
 
 	~Song();
 	Song();
