@@ -47,6 +47,11 @@ public:
 	void remove_track(int p_idx);
 	Track *get_track(int p_idx);
 
+	int get_event_column_count() const;
+	void set_event(int p_pattern, int p_column, Tick p_pos, const Track::Event& p_event);
+	Track::Event get_event(int p_pattern,int p_column, Tick p_pos) const;
+	void get_events_in_range(int p_pattern,const Track::Pos& p_from,const Track::Pos& p_to,List<Track::PosEvent> *r_events ) const;
+
 	~Song();
 	Song();
 };

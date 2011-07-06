@@ -3,7 +3,7 @@
 
 #include "undo_redo.h"
 #include "song.h"
-#include "pattern_track.h"
+
 
 #if 0
 class EditCommands : public UndoRedo {

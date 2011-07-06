@@ -1,13 +1,13 @@
 #include "track.h"
 
 
-void Automation::set_point(int p_pattern, Tick p_offset, float p_value) {
+void Automation::set_point(int p_pattern, Tick p_offset, uint8_t p_value) {
 
 	_AUDIO_LOCK_
 
 	if (!data.has(p_pattern)) {
 
-		data[p_pattern]=ValueStream<Tick,float>();
+		data[p_pattern]=ValueStream<Tick,uint8_t>();
 	}
 
 	data[p_pattern].insert(p_offset,p_value);
@@ -20,7 +20,7 @@ bool Automation::has_point(int p_pattern, Tick p_offset) const {
 	return data[p_pattern].find_exact(p_offset)>=0;
 }
 
-float Automation::get_point(int p_pattern, Tick p_offset) const {
+uint8_t Automation::get_point(int p_pattern, Tick p_offset) const {
 
 	ERR_FAIL_COND_V( !data.has(p_pattern), 0 );
 
@@ -50,7 +50,7 @@ Tick Automation::get_point_tick_by_index(int p_pattern,int p_index) const {
 
 	// this is used super often when playing, so it should be more optimized
 
-	const Map<int,ValueStream<Tick,float> >::Element *E = data.find(p_pattern);
+	const Map<int,ValueStream<Tick,uint8_t> >::Element *E = data.find(p_pattern);
 	ERR_FAIL_COND_V(!E,0);
 
 
@@ -59,11 +59,11 @@ Tick Automation::get_point_tick_by_index(int p_pattern,int p_index) const {
 
 }
 
-float Automation::get_point_by_index(int p_pattern,int p_index) const {
+uint8_t Automation::get_point_by_index(int p_pattern,int p_index) const {
 
 	// this is used super often when playing, so it should be more optimized
 
-	const Map<int,ValueStream<Tick,float> >::Element *E = data.find(p_pattern);
+	const Map<int,ValueStream<Tick,uint8_t> >::Element *E = data.find(p_pattern);
 	ERR_FAIL_COND_V(!E,0);
 	ERR_FAIL_INDEX_V( p_index, E->get().size(), 0 );
 	return E->get()[p_index];
@@ -72,7 +72,7 @@ float Automation::get_point_by_index(int p_pattern,int p_index) const {
 
 int Automation::get_point_count(int p_pattern) const {
 
-	const Map<int,ValueStream<Tick,float> >::Element *E = data.find(p_pattern);
+	const Map<int,ValueStream<Tick,uint8_t> >::Element *E = data.find(p_pattern);
 	if (!E)
 		return 0;
 
@@ -271,6 +271,54 @@ void Track::get_notes_in_range(int p_pattern,const Pos& p_from,const Pos& p_to,L
 
 }
 
+int Track::get_event_column_count() const {
+
+	return note_columns+automations.size();
+}
+
+void Track::set_event(int p_pattern, int p_column, Tick p_pos, const Event& p_event) {
+
+	ERR_FAIL_INDEX(p_column,get_event_column_count());
+
+	if (p_column<note_columns) {
+		//note
+		PosNote pn;
+		pn.pos.column=p_column;
+		pn.pos.tick=p_pos;
+		pn.note=p_event;
+		set_note(p_pattern,pn.pos,p_event);
+
+	} else {
+
+		int auto_idx=p_column-note_columns;
+		get_automation(auto_idx)->set_point(p_pattern,p_pos,p_event);
+	}
+
+}
+
+Track::Event Track::get_event(int p_pattern,int p_column, Tick p_pos) const {
+
+	ERR_FAIL_INDEX_V(p_column,get_event_column_count(),Event());
+
+	if (p_column<note_columns) {
+		//note
+		PosNote pn;
+		pn.pos.column=p_column;
+		pn.pos.tick=p_pos;
+		get_note(p_pattern,pn.pos);
+
+	} else {
+
+		int auto_idx=p_column-note_columns;
+		automations[auto_idx]->get_point(p_pattern,p_pos);
+	}
+
+}
+
+void Track::get_events_in_range(int p_pattern,const Pos& p_from,const Pos& p_to,List<PosEvent> *r_events ) const {
+
+
+}
 
 
 void Track::set_swing(float p_swing) {

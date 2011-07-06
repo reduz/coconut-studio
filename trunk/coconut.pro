@@ -19,7 +19,6 @@ SOURCES += bin/coconut.cpp \
     engine/audio_effect.cpp \
     engine/song.cpp \
     engine/audio_lock.cpp \
-    engine/pattern_track.cpp \
     engine/edit_commands.cpp \
     engine/undo_redo.cpp \
     gui_main/gui_helpers.cpp
@@ -42,7 +41,6 @@ HEADERS += gui_main/main_window.h \
     globals/vector.h \
     globals/map.h \
     engine/audio_lock.h \
-    engine/pattern_track.h \
     engine/edit_commands.h \
     engine/undo_redo.h \
     globals/list.h \

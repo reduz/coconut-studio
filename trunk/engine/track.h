@@ -23,22 +23,27 @@ public:
 		DISPLAY_LARGE
 	};
 
+	enum {
+
+		EMPTY=255
+	};
+
 private:
 	AudioEffect *owner;
 	ControlPort *port;
 	DisplayMode display_mode;
 	bool visible;
 
-	Map<int,ValueStream<Tick,float> > data;
+	Map<int,ValueStream<Tick,uint8_t> > data;
 public:
 
-	void set_point(int p_pattern, Tick p_offset, float p_value);
+	void set_point(int p_pattern, Tick p_offset, uint8_t p_value);
 	bool has_point(int p_pattern, Tick p_offset) const;
-	float get_point(int p_pattern, Tick p_offset) const;
+	uint8_t get_point(int p_pattern, Tick p_offset) const;
 	void remove_point(int p_pattern, Tick p_offset);
 
 	Tick get_point_tick_by_index(int p_pattern,int p_index) const;
-	float get_point_by_index(int p_pattern,int p_index) const;
+	uint8_t get_point_by_index(int p_pattern,int p_index) const;
 	int get_point_count(int p_pattern) const;
 	void get_points_in_range(int p_pattern, Tick p_from, Tick p_to, int &r_from_idx, int& r_to_idx) const;
 
@@ -83,10 +88,61 @@ public:
 		Pos() { tick=0; column=0; }
 	};
 
+	//generic event?
+	struct Event {
+
+		bool note;
+		uint8_t a;
+		uint8_t b;
+
+		operator uint8_t() const {
+			// to automation
+			if (note)
+				return Automation::EMPTY;
+			else
+				return a;
+		}
+
+		operator Note() const {
+
+			if (!note)
+				return Note();
+			else {
+
+				Note n;
+				n.note=a;
+				n.volume=b;
+				return n;
+			}
+
+		}
+
+		Event(const Note& p_note) {
+			note=true;
+			a=p_note.note;
+			b=p_note.volume;
+		}
+
+		Event(const uint8_t p_autoval) {
+
+			note=false;
+			a=p_autoval;
+			b=0;
+		}
+
+		Event() { note=true; a=Note::EMPTY; b=Note::EMPTY; }
+	};
+
 	struct PosNote {
 		Pos pos;
 		Note note;
 	};
+
+	struct PosEvent {
+		Pos pos;
+		Event event;
+	};
+
 private:
 
 	Map<int, ValueStream<Pos, Note > > note_data;
@@ -133,6 +189,11 @@ public:
 	void set_swing_step(int p_swing_step);
 	int get_swing_step() const;
 
+
+	int get_event_column_count() const;
+	void set_event(int p_pattern, int p_column, Tick p_pos, const Event& p_event);
+	Event get_event(int p_pattern,int p_column, Tick p_pos) const;
+	void get_events_in_range(int p_pattern,const Pos& p_from,const Pos& p_to,List<PosEvent> *r_events ) const;
 
 	Track();
 };
