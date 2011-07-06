@@ -76,27 +76,28 @@ int Song::get_track_count() const {
 
 	return tracks.size();
 }
-void Song::add_track(Track *p_track,int p_pos) {
+
+void Song::add_track(Track *p_track) {
 
 	_AUDIO_LOCK_
-
-	if (p_pos<0)
-		p_pos=tracks.size();
-	ERR_FAIL_COND(p_pos>tracks.size());
-	tracks.insert(p_pos,p_track);
+			//audio kill
+	tracks.push_back(p_track);
 }
-Track *Song::get_track(int p_pos) {
 
-	ERR_FAIL_INDEX_V(p_pos,tracks.size(),NULL);
-	return tracks[p_pos];
-}
-void Song::remove_track(int p_pos) {
+void Song::remove_track(int p_idx) {
 
 	_AUDIO_LOCK_
+			//audio kill...
+	ERR_FAIL_INDEX(p_idx,tracks.size());
 
-	ERR_FAIL_INDEX(p_pos,tracks.size());
-	tracks.remove(p_pos);
+	tracks.remove(p_idx);
+}
 
+Track *Song::get_track(int p_idx) {
+
+	ERR_FAIL_INDEX_V(p_idx,tracks.size(),NULL);
+
+	return tracks[p_idx];
 }
 
 Song::~Song() {

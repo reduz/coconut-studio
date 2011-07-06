@@ -1,8 +1,9 @@
 #ifndef PATTERN_TRACK_H
 #define PATTERN_TRACK_H
 
+#if 0
 #include "track.h"
-
+#include "list.h"
 
 class PatternTrack : public Track{
 public:
@@ -23,22 +24,6 @@ public:
 		Note() { note=EMPTY; volume=EMPTY; }
 	};
 
-	struct Command {
-
-		enum {
-			EMPTY=0xFF,
-			OFF=0xFE,
-			MAX_PARAM=99
-		};
-
-		inline bool is_empty() const { return (command==EMPTY && param==EMPTY); }
-		uint8_t command;
-		uint8_t param;
-		bool operator==(Command p_command) const { return command==p_command.command && param==p_command.param; }
-
-		Command() { command=EMPTY; param=EMPTY; }
-	};
-
 	struct Pos {
 
 		Tick tick;
@@ -51,11 +36,15 @@ public:
 		Pos() { tick=0; column=0; }
 	};
 
+	struct PosNote {
+		Pos pos;
+		Note note;
+	};
+
+
 private:
 	Map<int, ValueStream<Pos, Note > > note_data;
-	Map<int, ValueStream<Pos, Command > > command_data;
 	int note_columns;
-	int command_columns;
 
 	float swing;
 	int swing_step;
@@ -68,12 +57,7 @@ public:
 	void set_note(int p_pattern, Pos p_pos, Note p_note);
 	Note get_note(int p_pattern,Pos p_pos) const;
 
-	/* commands */
-	void set_command(int p_pattern, Pos p_pos, Command p_command);
-	Command get_command(int p_pattern,Pos p_pos) const;
-
-	void set_command_columns(int p_columns);
-	int get_command_columns() const;
+	void get_notes_in_range(int p_pattern,const Pos& p_from,const Pos& p_to,List<PosNote> *r_notes ) const;
 
 	void set_swing(float p_swing);
 	float get_swing() const;
@@ -88,4 +72,5 @@ typedef PatternTrack::Note PatternNote;
 typedef PatternTrack::Command PatternCommand;
 typedef PatternTrack::Pos PatternPos;
 
+#endif
 #endif // PATTERN_TRACK_H
