@@ -7,7 +7,7 @@
 
 class PatternEditor : public QWidget
 {
-Q_OBJECT
+	Q_OBJECT
 
 	void paintEvent(QPaintEvent *);
 

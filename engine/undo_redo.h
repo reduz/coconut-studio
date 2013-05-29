@@ -15,7 +15,7 @@
 
 #include "rstring.h"
 #include "list.h"
-#include "simple_type.h"
+//#include "simple_type.h"
 /**
 	@author Juan Linietsky <reduzio@gmail.com>
 */

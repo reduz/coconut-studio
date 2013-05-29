@@ -29,28 +29,28 @@ public:
 
 
 
-	class Iterator {
+	class Element {
 
 	public:
 		friend class List<T>;
 
 		T value;
-		Iterator* next_ptr;
-		Iterator* prev_ptr;
+		Element* next_ptr;
+		Element* prev_ptr;
 		_Data *data;
 	public:
 
 		/**
 		 * Get NEXT Element iterator, for constant lists.
 		 */
-		const Iterator* next() const {
+		const Element* next() const {
 
 			return next_ptr;
 		};
 		/**
 		 * Get NEXT Element iterator,
 		 */
-		Iterator* next() {
+		Element* next() {
 
 			return next_ptr;
 		};
@@ -58,14 +58,14 @@ public:
 		/**
 		 * Get PREV Element iterator, for constant lists.
 		 */
-		const Iterator* prev() const {
+		const Element* prev() const {
 
 			return prev_ptr;
 		};
 		/**
 		 * Get PREV Element iterator,
 		 */
-		Iterator* prev() {
+		Element* prev() {
 
 			return prev_ptr;
 		};
@@ -120,7 +120,7 @@ public:
 			data->erase(this);
 		}
 
-		Iterator() {
+		Element() {
 			next_ptr = 0;
 			prev_ptr = 0;
 			data=NULL;
@@ -131,12 +131,12 @@ private:
 
 	struct _Data {
 
-		Iterator* first;
-		Iterator* last;
+		Element* first;
+		Element* last;
 		int size_cache;
 
 
-		bool erase(const Iterator* p_I) {
+		bool erase(const Element* p_I) {
 
 			if (!p_I)
 				return false;
@@ -156,7 +156,7 @@ private:
 			if (p_I->next_ptr)
 				p_I->next_ptr->prev_ptr=p_I->prev_ptr;
 
-			delete  const_cast<Iterator*>(p_I);
+			delete  const_cast<Element*>(p_I);
 			size_cache--;
 
 			return true;
@@ -170,7 +170,7 @@ public:
 	/**
  	* return an const iterator to the begining of the list.
 	*/
-	const Iterator* begin() const {
+	const Element* begin() const {
 
 		return _data?_data->first:0;
 	};
@@ -178,14 +178,14 @@ public:
 	/**
  	* return an iterator to the begining of the list.
 	*/
-	Iterator* begin() {
+	Element* front() {
 		return _data?_data->first:0;
 	};
 
 	/**
  	* return an const iterator to the last member of the list.
 	*/
-	const Iterator* back() const {
+	const Element* back() const {
 
 		return _data?_data->last:0;
 	};
@@ -193,7 +193,7 @@ public:
 	/**
  	* return an iterator to the last member of the list.
 	*/
-	Iterator* back() {
+	Element* back() {
 
 		return _data?_data->last:0;
 	};
@@ -211,7 +211,7 @@ public:
 			_data->size_cache=0;
 		}
 
-		Iterator* n = new Iterator;
+		Element* n = new Element;
 		n->value = (T&)value;
 
 		n->prev_ptr=_data->last;
@@ -250,7 +250,7 @@ public:
 			_data->size_cache=0;
 		}
 
-		Iterator* n = new Iterator;
+		Element* n = new Element;
 		n->value = (T&)value;
 		n->prev_ptr = 0;
 		n->next_ptr = _data->first;
@@ -279,9 +279,9 @@ public:
 	 * find an element in the list,
 	 */
 	template<class T_v>
-	Iterator* find(const T_v& p_val) {
+	Element* find(const T_v& p_val) {
 
-		Iterator* it = begin();
+		Element* it = begin();
 		while (it) {
 			if (it->value == p_val) return it;
 			it = it->next();
@@ -293,7 +293,7 @@ public:
 	/**
 	 * erase an element in the list, by iterator pointing to it. Return true if it was found/erased.
 	 */
-	bool erase(const Iterator* p_I) {
+	bool erase(const Element* p_I) {
 
 		if (_data) {
 			bool ret =  _data->erase(p_I);
@@ -314,7 +314,7 @@ public:
 	 */
 	bool erase(const T& value) {
 
-		Iterator* I = find(value);
+		Element* I = find(value);
 		return erase(I);
 	};
 
@@ -348,7 +348,7 @@ public:
 	void operator=(const List& p_list) {
 
 		clear();
-		const Iterator *it=p_list.begin();
+		const Element *it=p_list.begin();
 		while (it) {
 
 			push_back( it->get() );
@@ -364,7 +364,7 @@ public:
 			ERR_FAIL_COND_V(p_index<0 || p_index>=size(),aux);
 		}
 
-		Iterator *I=begin();
+		Element *I=begin();
 		int c=0;
 		while(I) {
 
@@ -386,7 +386,7 @@ public:
 			ERR_FAIL_COND_V(p_index<0 || p_index>=size(),aux);
 		}
 
-		const Iterator *I=begin();
+		const Element *I=begin();
 		int c=0;
 		while(I) {
 
@@ -401,7 +401,7 @@ public:
 		ERR_FAIL_V( *((T*)0) );	 // bug!
 	}
 
-	void move_before(Iterator* value, Iterator* where) {
+	void move_before(Element* value, Element* where) {
 
 		if (value->prev_ptr) {
 			value->prev_ptr->next_ptr = value->next_ptr;
@@ -438,18 +438,18 @@ public:
 		sort<Comparer>(c);
 	}
 	template <class TC>
-	void sort(const TC& comparer, Iterator* start = 0, Iterator* end = 0) {
+	void sort(const TC& comparer, Element* start = 0, Element* end = 0) {
 
 		if (!start) start = begin();
 		if (!end) end = back();
 
 		if (start == end || start->next_ptr == end) return;
 
-		Iterator *I = start->next();
-		Iterator* pivot = start;
-		Iterator* last = pivot;
-		Iterator* start_next = pivot;
-		Iterator* next = I->next();
+		Element *I = start->next();
+		Element* pivot = start;
+		Element* last = pivot;
+		Element* start_next = pivot;
+		Element* next = I->next();
 		do {
 
 			I = next;
@@ -479,7 +479,7 @@ public:
 	List(const List& p_list) {
 
 		_data=NULL;
-		const Iterator *it=p_list.begin();
+		const Element *it=p_list.begin();
 		while (it) {
 
 			push_back( it->get() );
