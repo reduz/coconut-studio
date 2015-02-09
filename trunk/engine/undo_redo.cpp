@@ -11,32 +11,119 @@
 //
 #include "undo_redo.h"
 
-void UndoRedo::begin_group(String p_name) {
 
+void UndoRedo::_delete_group(Group * p_group,bool p_do,bool p_undo) {
+
+	for(List<CommandBase*>::Element *E=p_group->undo_method_list.front();E;E=E->next()) {
+		delete E->get();
+	}
+	for(List<CommandBase*>::Element *E=p_group->do_method_list.front();E;E=E->next()) {
+		delete E->get();
+	}
+
+	if (p_undo) {
+		for(List<Data*>::Element *E=p_group->undo_data.front();E;E=E->next()) {
+			E->get()->free();
+		}
+	}
+
+	if (p_do) {
+		for(List<Data*>::Element *E=p_group->do_data.front();E;E=E->next()) {
+			E->get()->free();
+		}
+	}
+
+	delete p_group;
 
 }
-void UndoRedo::end_group() {
 
+void UndoRedo::begin_action(String p_name, bool p_mergeable) {
+
+	if (group_rc>0) {
+		group_rc++;
+		return;
+	}
+
+	if (group_list.size()>current_group) {
+		//delete redo history
+		for(int i=current_group;i<group_list.size();i++) {
+
+			_delete_group(group_list[i],true,false);
+		}
+		group_list.resize(current_group);
+	}
+
+	if (p_mergeable && current_group>0 && group_list[current_group-1]->name==p_name) {
+		//mergeable command, use previous group, append to it.
+		current_group--;
+	} else {
+
+		Group* g = new Group;
+		g->name=p_name;
+		group_list.push_back(g);
+
+	}
+
+	group_rc++;
 
 }
 
-void UndoRedo::add_action(String p_description,CommandBase *p_do_method, CommandBase *p_undo_method) {
+void UndoRedo::commit_action() {
 
-	p_do_method->call();
+	ERR_FAIL_COND(group_rc<=0);
+
+	group_rc--;
+
+	if (group_rc>0) {
+		return;
+	}
+
+	redo();
+}
+
+void UndoRedo::undo() {
+
+	if (current_group>group_list.size() || current_group==0)
+		return;
+
+	current_group--;
+
+	for(List<CommandBase*>::Element *E=group_list[current_group]->undo_method_list.front();E;E=E->next()) {
+		E->get()->call();
+	}
 
 }
+
+void UndoRedo::redo() {
+
+	if (current_group>=group_list.size())
+		return;
+
+	for(List<CommandBase*>::Element *E=group_list[current_group]->do_method_list.front();E;E=E->next()) {
+		E->get()->call();
+	}
+
+	current_group++;
+}
+
+
 
 void UndoRedo::clean() {
 
+	for(int i=0;i<group_list.size();i++) {
+		_delete_group(group_list[i],false,true);
+	}
+	current_group=0;
 }
 
 UndoRedo::UndoRedo()
 {
+	current_group=0;
 }
 
 
-UndoRedo::~UndoRedo()
-{
+UndoRedo::~UndoRedo() {
+	clean();
 }
 
 

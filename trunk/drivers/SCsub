@@ -1,0 +1,9 @@
+Import('env');
+Export('env');
+
+targets=[]
+
+env.add_sources(targets,"*.cpp")
+
+lib = env.Library('drivers', targets);
+env.Append(LIBS=[lib])

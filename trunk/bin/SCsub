@@ -1,0 +1,13 @@
+Import('env')
+
+
+ctfiles=['coconut.cpp'];
+
+if (env.icon_obj!=""):
+       	ctfiles+=[env.icon_obj]
+
+dst_obj=env.Program('coconut', ctfiles);
+env.bin_targets+=[dst_obj]
+
+
+

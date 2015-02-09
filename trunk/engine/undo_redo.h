@@ -15,6 +15,7 @@
 
 #include "rstring.h"
 #include "list.h"
+#include "vector.h"
 //#include "simple_type.h"
 /**
 	@author Juan Linietsky <reduzio@gmail.com>
@@ -64,6 +65,7 @@ protected:
 		virtual void call() {
 			(instance->*method)();
 		}
+		Command0(T* p_instance,Method p_method) { instance=p_instance; method=p_method;  }
 	};
 
 	template<class T,class P1>
@@ -79,13 +81,7 @@ protected:
 		Command1(T* p_instance,Method p_method,P1 p_p1) { instance=p_instance; method=p_method; p1 = p_p1;  }
 	};
 	
-	
-	template<class T,class M,class P1>
-	Command1<T,P1>* command( T *p_instance, M p_method, P1 p1) {
-	
-		return new Command1<T,P1>(p_instance,p_method,p1);
-	}
-	
+		
 	/**/
 
 	template<class T,class P1,class P2>
@@ -101,12 +97,6 @@ protected:
 		Command2(T* p_instance,Method p_method,P1 p_p1,P2 p_p2) { instance=p_instance; method=p_method; p1 = p_p1; p2=p_p2; }
 	};
 	
-	
-	template<class T,class M,class P1,class P2>
-	Command2<T,P1,P2>* command( T *p_instance, M p_method, P1 p1, P2 p2) {
-	
-		return new Command2<T,P1,P2>(p_instance,p_method,p1,p2);
-	}
 	
 	/**/
 		
@@ -124,12 +114,6 @@ protected:
 	};
 	
 	
-	template<class T,class M,class P1,class P2, class P3>
-	Command3<T,P1,P2,P3>* command( T *p_instance, M p_method, P1 p1, P2 p2,P3 p3) {
-	
-		return new Command3<T,P1,P2,P3>(p_instance,p_method,p1,p2,p3);
-	}
-	
 	/**/
 		
 	template<class T,class P1,class P2, class P3, class P4>
@@ -144,14 +128,7 @@ protected:
 		}
 		Command4(T* p_instance,Method p_method,P1 p_p1,P2 p_p2,P3 p_p3,P4 p_p4) { instance=p_instance; method=p_method; p1 = p_p1; p2=p_p2; p3 = p_p3; p4=p_p4; }
 	};
-	
-	
-	template<class T,class M,class P1,class P2, class P3, class P4>
-	Command4<T,P1,P2,P3,P4>* command( T *p_instance, M p_method, P1 p1, P2 p2,P3 p3, P4 p4) {
-	
-		return new Command4<T,P1,P2,P3,P4>(p_instance,p_method,p1,p2,p3,p4);
-	}
-	
+
 	/**/
 	
 	template<class T,class P1,class P2, class P3, class P4, class P5>
@@ -166,7 +143,36 @@ protected:
 		}
 		Command5(T* p_instance,Method p_method,P1 p_p1,P2 p_p2,P3 p_p3,P4 p_p4, P5 p_p5) { instance=p_instance; method=p_method; p1 = p_p1; p2=p_p2; p3 = p_p3; p4=p_p4; p5 = p_p5; }
 	};
-	
+
+	/* methods */
+
+	template<class T,class M,class P1>
+	Command1<T,P1>* command( T *p_instance, M p_method, P1 p1) {
+
+		return new Command1<T,P1>(p_instance,p_method,p1);
+	}
+
+	template<class T,class M,class P1,class P2>
+	Command2<T,P1,P2>* command( T *p_instance, M p_method, P1 p1, P2 p2) {
+
+		return new Command2<T,P1,P2>(p_instance,p_method,p1,p2);
+	}
+
+
+	template<class T,class M,class P1,class P2, class P3>
+	Command3<T,P1,P2,P3>* command( T *p_instance, M p_method, P1 p1, P2 p2,P3 p3) {
+
+		return new Command3<T,P1,P2,P3>(p_instance,p_method,p1,p2,p3);
+	}
+
+
+	template<class T,class M,class P1,class P2, class P3, class P4>
+	Command4<T,P1,P2,P3,P4>* command( T *p_instance, M p_method, P1 p1, P2 p2,P3 p3, P4 p4) {
+
+		return new Command4<T,P1,P2,P3,P4>(p_instance,p_method,p1,p2,p3,p4);
+	}
+
+
 	
 	template<class T,class M,class P1,class P2, class P3, class P4, class P5>
 	Command5<T,P1,P2,P3,P4,P5>* command( T *p_instance, M p_method, P1 p1, P2 p2,P3 p3, P4 p4, P5 p5) {
@@ -175,36 +181,130 @@ protected:
 	}
 
 
+
 	/*****/
-	
-	class Action {
-		CommandBase *undo_method;
-		CommandBase *redo_method;
+
+
+	class Data {
 	public:
-	
-		void undo() { if (undo_method) undo_method->call(); }
-		void redo() { if (redo_method) redo_method->call(); }
-		Action(CommandBase *p_undo_method,CommandBase *p_redo_method) { undo_method=p_undo_method; redo_method=p_redo_method; }
-		
-		~Action() { if (undo_method) delete undo_method; if (redo_method) delete redo_method; }
+
+		virtual void free()=0;
+		virtual ~Data() {}
 	};
 
-	void add_action(String p_description,CommandBase *p_do_method, CommandBase *p_undo_method);
+	template<class T>
+	class DataPtr : public Data {
+
+		T* ptr;
+	public:
+		virtual void free() { delete ptr; }
+		DataPtr(T* p_ptr) { ptr=p_ptr; }
+		~DataPtr() {  }
+	};
+	
 
 private:
 
-	struct ActionGroup {
+	struct Group {
 	
-		List<Action*> action_list;
+		List<CommandBase*> do_method_list;
+		List<CommandBase*> undo_method_list;
+		List<Data*> do_data;
+		List<Data*> undo_data;
 		String name;
 			
 	};
 
+	void _delete_group(Group * p_group,bool p_do,bool p_undo);
+	Vector<Group*> group_list;
+	int current_group;
+	int group_rc;
+
 public:
 	
-	void begin_group(String p_name);
-	void end_group();
+	void begin_action(String p_name,bool p_mergeable=false);
+
+
+	template<class T,class M>
+	void do_method( T *p_instance, M p_method) {
+
+		group_list[current_group]->do_method_list.push_back( new Command0<T>(p_instance,p_method) );
+	}
+
+	template<class T,class M,class P1>
+	void do_method( T *p_instance, M p_method, P1 p1) {
+
+		group_list[current_group]->do_method_list.push_back( new Command1<T,P1>(p_instance,p_method,p1) );
+	}
+
+	template<class T,class M,class P1,class P2>
+	void do_method( T *p_instance, M p_method, P1 p1, P2 p2) {
+
+		group_list[current_group]->do_method_list.push_back( new Command2<T,P1,P2>(p_instance,p_method,p1,p2) );
+	}
+
+
+	template<class T,class M,class P1,class P2, class P3>
+	void do_method( T *p_instance, M p_method, P1 p1, P2 p2,P3 p3) {
+
+		group_list[current_group]->do_method_list.push_back( new Command3<T,P1,P2,P3>(p_instance,p_method,p1,p2,p3) );
+	}
+
+
+	template<class T,class M,class P1,class P2, class P3, class P4>
+	void do_method( T *p_instance, M p_method, P1 p1, P2 p2,P3 p3, P4 p4) {
+
+		group_list[current_group]->do_method_list.push_back( new Command4<T,P1,P2,P3,P4>(p_instance,p_method,p1,p2,p3,p4) );
+	}
+
+	template<class T,class M>
+	void undo_method( T *p_instance, M p_method) {
+
+		group_list[current_group]->undo_method_list.push_back( new Command0<T>(p_instance,p_method) );
+	}
+
+	template<class T,class M,class P1>
+	void undo_method( T *p_instance, M p_method, P1 p1) {
+
+		group_list[current_group]->undo_method_list.push_back( new Command1<T,P1>(p_instance,p_method,p1) );
+	}
+
+	template<class T,class M,class P1,class P2>
+	void undo_method( T *p_instance, M p_method, P1 p1, P2 p2) {
+
+		group_list[current_group]->undo_method_list.push_back( new Command2<T,P1,P2>(p_instance,p_method,p1,p2) );
+	}
+
+
+	template<class T,class M,class P1,class P2, class P3>
+	void undo_method( T *p_instance, M p_method, P1 p1, P2 p2,P3 p3) {
+
+		group_list[current_group]->undo_method_list.push_back( new Command3<T,P1,P2,P3>(p_instance,p_method,p1,p2,p3) );
+	}
+
+
+	template<class T,class M,class P1,class P2, class P3, class P4>
+	void undo_method( T *p_instance, M p_method, P1 p1, P2 p2,P3 p3, P4 p4) {
+
+		group_list[current_group]->undo_method_list.push_back( new Command4<T,P1,P2,P3,P4>(p_instance,p_method,p1,p2,p3,p4) );
+	}
+
+	template<class T>
+	void do_data(T* p_data) {
+
+		group_list[current_group]->do_data.push_back(new DataPtr<T>(p_data));
+	}
+
+	template<class T>
+	void undo_data(T* p_data) {
+
+		group_list[current_group]->undo_data.push_back(new DataPtr<T>(p_data));
+	}
+
+	void commit_action();
 	
+	void undo();
+	void redo();
 	void clean();
 
 	UndoRedo();

@@ -63,7 +63,7 @@ public:
 class AudioEffect {
 public:
 	//process
-	virtual bool process(const Frame2 *p_in,const Frame2 *p_chain, Frame2* p_out, const Event* p_events, int p_frames, bool p_prev_active)=0;
+	virtual bool process(const AudioFrame2 *p_in,const AudioFrame2 *p_chain, AudioFrame2* p_out, const Event* p_events, int p_frames, bool p_prev_active)=0;
 
 	//info
 	virtual bool has_sidechain() const=0;
@@ -88,5 +88,34 @@ public:
 	AudioEffect();
 	virtual ~AudioEffect();
 };
+
+class ControlPortDefault : public ControlPort {
+public:
+
+	String name;
+	float min,max,step,initial;
+	float value;
+	Hint hint;
+
+	virtual String get_name() const { return name; }
+
+
+	virtual float get_min() const { return min; }
+	virtual float get_max() const { return max; }
+	virtual float get_step() const { return step; }
+	virtual float get_initial() const { return initial; }
+	virtual float get() const { return value; }
+
+	virtual void set(float p_val,bool p_make_initial=false) {
+		value=p_val;
+		if (p_make_initial)
+			initial=value;
+	}
+
+	virtual Hint get_hint() const { return hint; }
+
+	ControlPortDefault() { hint=HINT_RANGE; }
+};
+
 
 #endif // AUDIO_EFFECT_H
