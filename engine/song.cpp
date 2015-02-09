@@ -5,7 +5,7 @@ void Song::_check_delete_pattern_config(int p_pattern) {
 
 	if (!pattern_config.has(p_pattern))
 		return;
-	if (pattern_config[p_pattern].beats_per_bar==DEFAULT_BEATS_PER_BAR && pattern_config[p_pattern].bars==DEFAULT_PATTERN_BARS ) {
+	if (pattern_config[p_pattern].beats_per_bar==DEFAULT_BEATS_PER_BAR && pattern_config[p_pattern].beats==DEFAULT_PATTERN_BEATS ) {
 
 		pattern_config.erase(p_pattern);
 	}
@@ -32,7 +32,7 @@ int Song::pattern_get_beats_per_bar(int p_pattern) const {
 	return pattern_config[p_pattern].beats_per_bar;
 
 }
-void Song::pattern_set_bars(int p_pattern, int p_bars) {
+void Song::pattern_set_beats(int p_pattern, int p_beats) {
 
 	_AUDIO_LOCK_
 
@@ -40,16 +40,16 @@ void Song::pattern_set_bars(int p_pattern, int p_bars) {
 		pattern_config[p_pattern]=PatternConfig();
 
 
-	pattern_config[p_pattern].bars=p_bars;
+	pattern_config[p_pattern].beats=p_beats;
 
 	_check_delete_pattern_config(p_pattern);
 }
-int Song::pattern_get_bars(int p_pattern) const {
+int Song::pattern_get_beats(int p_pattern) const {
 
 	if (!pattern_config.has(p_pattern))
-		return DEFAULT_PATTERN_BARS;
+		return DEFAULT_PATTERN_BEATS;
 
-	return pattern_config[p_pattern].bars;
+	return pattern_config[p_pattern].beats;
 
 }
 
@@ -84,6 +84,14 @@ void Song::add_track(Track *p_track) {
 	tracks.push_back(p_track);
 }
 
+void Song::add_track_at_pos(Track *p_track,int p_pos) {
+
+	_AUDIO_LOCK_
+	tracks.insert(p_pos,p_track);
+
+}
+
+
 void Song::remove_track(int p_idx) {
 
 	_AUDIO_LOCK_
@@ -92,6 +100,13 @@ void Song::remove_track(int p_idx) {
 
 	tracks.remove(p_idx);
 }
+
+void Song::swap_tracks(int p_which,int p_by_which) {
+	_AUDIO_LOCK_;
+	SWAP(tracks[p_which],tracks[p_by_which]);
+
+}
+
 
 Track *Song::get_track(int p_idx) {
 
@@ -125,6 +140,24 @@ void Song::set_event(int p_pattern, int p_column, Tick p_pos, const Track::Event
 	ERR_FAIL_COND(true);
 
 }
+
+Track::Event::Type Song::get_event_column_type(int p_column) const {
+
+	for(int i=0;i<tracks.size();i++) {
+
+		if (p_column < tracks[i]->get_event_column_count()) {
+
+			return tracks[i]->get_event_column_type(p_column);
+
+		}
+
+		p_column-=tracks[i]->get_event_column_count();
+
+	}
+
+	ERR_FAIL_COND_V(true,Track::Event::TYPE_NOTE);
+}
+
 Track::Event Song::get_event(int p_pattern,int p_column, Tick p_pos) const {
 
 	for(int i=0;i<tracks.size();i++) {
@@ -144,6 +177,7 @@ Track::Event Song::get_event(int p_pattern,int p_column, Tick p_pos) const {
 void Song::get_events_in_range(int p_pattern,const Track::Pos& p_from,const Track::Pos& p_to,List<Track::PosEvent> *r_events ) const {
 
 
+
 }
 
 
@@ -153,6 +187,7 @@ Song::~Song() {
 		delete tracks[i];
 }
 
-Song::Song()
-{
+Song::Song() {
+
+
 }

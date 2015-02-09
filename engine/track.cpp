@@ -1,5 +1,5 @@
 #include "track.h"
-
+#include <stdio.h>
 
 void Automation::set_point(int p_pattern, Tick p_offset, uint8_t p_value) {
 
@@ -80,7 +80,33 @@ int Automation::get_point_count(int p_pattern) const {
 
 }
 
-void Automation::get_points_in_range(int p_pattern, Tick p_from, Tick p_to, int &r_from_idx, int& r_count) const {
+float Automation::interpolate_offset(int p_pattern,Tick p_offset) const {
+
+	const Map<int,ValueStream<Tick,uint8_t> >::Element *E=data.find(p_pattern);
+	if (!E) {
+		return -1;
+	}
+
+	const ValueStream<Tick,uint8_t>& vs = E->get();
+
+	int pos = vs.find(p_offset);
+	int total=vs.size();
+
+	if (pos<0 || pos>=total)
+		return -1;
+	int n = pos+1;
+	if (n>=total)
+		return -1;
+	float c=float(p_offset-vs.get_pos(pos))/float(vs.get_pos(n)-vs.get_pos(pos));
+	float a = (vs[pos]/255.0);
+	float b= (vs[n]/255.0);
+
+	return b*c+a*(1.0-c);
+
+}
+
+
+void Automation::get_points_in_range(int p_pattern, Tick p_from, Tick p_to, int &r_first, int& r_count) const {
 
 
 	const Map<int,ValueStream<Tick,uint8_t> >::Element *E=data.find(p_pattern);
@@ -99,15 +125,24 @@ void Automation::get_points_in_range(int p_pattern, Tick p_from, Tick p_to, int 
 	int pos_beg = vs.find(p_from);
 	int pos_end = vs.find(p_to);
 
+	if (pos_end>=0 && p_to==vs.get_pos(pos_end)) {
+		pos_end--;
+	}
+
 	if (pos_end<0) {
 		r_count=0;
 		return;
 	}
 
-	if (pos_beg<0 || p_from<vs.get_pos(pos_beg))
+	if (pos_beg<0 || vs.get_pos(pos_beg)<p_from)
 		pos_beg++;
 
-	r_from_idx=pos_beg;
+	if (pos_beg>pos_end) {
+		r_count=0;
+		return;
+	}
+
+	r_first=pos_beg;
 	r_count=pos_end-pos_beg+1;
 
 }
@@ -124,6 +159,17 @@ AudioEffect *Automation::get_owner() {
 }
 
 
+
+void Automation::set_visible(bool p_visible) {
+
+	visible=p_visible;
+}
+
+void Automation::set_display_mode(DisplayMode p_mode){
+
+	display_mode=p_mode;
+}
+
 bool Automation::is_visible() const {
 
 	return visible;
@@ -138,10 +184,23 @@ Automation::Automation(ControlPort *p_port, AudioEffect *p_owner) {
 
 	port=p_port;
 	owner=p_owner;
+	display_mode=DISPLAY_ROWS;
+	visible=true;
 }
 
 
 /* audio effects */
+
+void Track::set_name(String p_name) {
+
+	name=p_name;
+}
+
+String Track::get_name() const {
+
+	return name;
+}
+
 
 int Track::get_audio_effect_count() const {
 
@@ -212,7 +271,14 @@ Automation *Track::get_automation(int p_pos) const{
 
 }
 
-void Track::set_note_columns(int p_columns) {
+void Track::swap_automations(int p_which,int p_by_which) {
+	_AUDIO_LOCK_
+
+	SWAP(automations[p_which],automations[p_by_which]);
+}
+
+
+void Track::set_columns(int p_columns) {
 
 	_AUDIO_LOCK_
 
@@ -221,7 +287,7 @@ void Track::set_note_columns(int p_columns) {
 	note_columns=p_columns;
 }
 
-int Track::get_note_columns() const {
+int Track::get_column_count() const {
 
 	return note_columns;
 }
@@ -279,13 +345,22 @@ void Track::get_notes_in_range(int p_pattern,const Pos& p_from,const Pos& p_to,i
 	int pos_beg = vs.find(p_from);
 	int pos_end = vs.find(p_to);
 
+	if (pos_end>=0 && p_to==vs.get_pos(pos_end)) {
+		pos_end--;
+	}
+
 	if (pos_end<0) {
 		r_count=0;
 		return;
 	}
 
-	if (pos_beg<0 || p_from<vs.get_pos(pos_beg))
+	if (pos_beg<0 || vs.get_pos(pos_beg)<p_from)
 		pos_beg++;
+
+	if (pos_beg>pos_end) {
+		r_count=0;
+		return;
+	}
 
 	r_first=pos_beg;
 	r_count=pos_end-pos_beg+1;
@@ -350,151 +425,11 @@ void Track::get_notes_in_range(int p_pattern,const Pos& p_from,const Pos& p_to,L
 	}
 }
 
-/////
-
-void Track::set_command_columns(int p_columns) {
-
-	_AUDIO_LOCK_
-
-	ERR_FAIL_COND(p_columns<1);
-
-	command_columns=p_columns;
-}
-
-int Track::get_command_columns() const {
-
-	return command_columns;
-}
-
-void Track::set_command(int p_pattern, Pos p_pos, Command p_command) {
-
-	_AUDIO_LOCK_
-
-	if (!command_data.has(p_pattern))
-		command_data[p_pattern]=ValueStream<Pos, Command >();
-
-	if (p_command.is_empty()) {
-		int idx = command_data[p_pattern].find_exact(p_pos);
-		if (idx<0)
-			return;
-
-		command_data[p_pattern].erase(idx);
-	} else {
-		command_data[p_pattern].insert(p_pos,p_command);
-	}
-
-}
-Track::Command Track::get_command(int p_pattern,Pos p_pos) const {
-
-	const Map<int, ValueStream<Pos, Command > >::Element *E = command_data.find(p_pattern);
-
-	if (!E)
-		return Command();
-
-
-	int idx = E->get().find_exact(p_pos);
-	if (idx<0)
-		return Command();
-	else
-		return E->get()[idx];
-
-}
-
-void Track::get_commands_in_range(int p_pattern,const Pos& p_from,const Pos& p_to,int &r_first, int& r_count ) const {
-
-
-	const Map<int, ValueStream<Pos, Command > >::Element *E=command_data.find(p_pattern);
-	if (!E) {
-		r_count=0;
-		return;
-	}
-
-	const ValueStream<Pos,Command>& vs = E->get();
-
-	if (vs.size()==0) {
-		r_count=0;
-		return;
-	}
-
-	int pos_beg = vs.find(p_from);
-	int pos_end = vs.find(p_to);
-
-	if (pos_end<0) {
-		r_count=0;
-		return;
-	}
-
-	if (pos_beg<0 || p_from<vs.get_pos(pos_beg))
-		pos_beg++;
-
-	r_first=pos_beg;
-	r_count=pos_end-pos_beg+1;
-
-}
-
-int Track::get_command_count(int p_pattern) const {
-
-	const Map<int, ValueStream<Pos, Command > >::Element *E=command_data.find(p_pattern);
-	if (!E)
-		return 0;
-
-	return E->get().size();
-}
-
-Track::Command Track::get_command_by_index(int p_pattern,int p_index) const{
-
-	const Map<int, ValueStream<Pos, Command > >::Element *E=command_data.find(p_pattern);
-	if (!E)
-		return Command();
-
-	const ValueStream<Pos,Command>& vs = E->get();
-	ERR_FAIL_INDEX_V(p_index,vs.size(),Command());
-	return vs[p_index];
-
-}
-Track::Pos Track::get_command_pos_by_index(int p_pattern,int p_index) const{
-
-	const Map<int, ValueStream<Pos, Command > >::Element *E=command_data.find(p_pattern);
-	if (!E)
-		return Pos();
-
-	const ValueStream<Pos,Command>& vs = E->get();
-	ERR_FAIL_INDEX_V(p_index,vs.size(),Pos());
-	return vs.get_pos(p_index);
-
-}
-
-
-void Track::get_commands_in_range(int p_pattern,const Pos& p_from,const Pos& p_to,List<PosCommand> *r_commands ) const {
-
-	Pos from = p_from;
-	Pos to = p_to;
-	if (from.column>to.column) {
-		SWAP(from.column,to.column);
-	}
-	if (from.tick>to.tick) {
-		SWAP(from.tick,to.tick);
-	}
-
-	int fromidx;
-	int count;
-	get_commands_in_range(p_pattern,from,to,fromidx,count);
-
-	for(int i=0;i<count;i++) {
-		PosCommand pn;
-		pn.pos=get_command_pos_by_index(p_pattern,i+fromidx);
-		if (pn.pos.column<from.column || pn.pos.column>to.column)
-			continue;
-		pn.command=get_command_by_index(p_pattern,i+fromidx);
-		r_commands->push_back(pn);
-	}
-}
-
 
 ///
 int Track::get_event_column_count() const {
 
-	return note_columns+command_columns+automations.size();
+	return note_columns+automations.size();
 }
 
 void Track::set_event(int p_pattern, int p_column, Tick p_pos, const Event& p_event) {
@@ -507,20 +442,24 @@ void Track::set_event(int p_pattern, int p_column, Tick p_pos, const Event& p_ev
 		p.column=p_column;
 		p.tick=p_pos;
 		set_note(p_pattern,p,p_event);
-	} else if (p_column<note_columns+command_columns) {
-		//note
-		Pos p;
-		p.column=p_column-note_columns;
-		p.tick=p_pos;
-		set_command(p_pattern,p,p_event);
 
 	} else {
 
-		int auto_idx=p_column-note_columns-command_columns;
+		int auto_idx=p_column-note_columns;
 		get_automation(auto_idx)->set_point(p_pattern,p_pos,p_event);
 	}
 
 }
+
+Track::Event::Type Track::get_event_column_type(int p_column) const {
+
+	if (p_column<note_columns)
+		return Event::TYPE_NOTE;
+	else
+		return Event::TYPE_AUTOMATION;
+
+}
+
 
 Track::Event Track::get_event(int p_pattern,int p_column, Tick p_pos) const {
 
@@ -532,16 +471,9 @@ Track::Event Track::get_event(int p_pattern,int p_column, Tick p_pos) const {
 		p.column=p_column;
 		p.tick=p_pos;
 		return get_note(p_pattern,p);
-	} else if (p_column<note_columns+command_columns) {
-		//note
-		Pos p;
-		p.column=p_column-note_columns;
-		p.tick=p_pos;
-		return get_command(p_pattern,p);
-
 	} else {
 
-		int auto_idx=p_column-note_columns-command_columns;
+		int auto_idx=p_column-note_columns;
 		return get_automation(auto_idx)->get_point(p_pattern,p_pos);
 	}
 
@@ -567,33 +499,12 @@ void Track::get_events_in_range(int p_pattern,const Pos& p_from,const Pos& p_to,
 
 	}
 
-	if (p_from.column<note_columns+command_columns && p_to.column>=note_columns) {
-		//has commands
-		List<PosCommand> pc;
-		Pos begin=p_from;
-		begin.column-=note_columns;
-		Pos end=p_to;
-		end.column-=note_columns;
-		if (end.column>=command_columns)
-			end.column=command_columns-1;
 
-		get_commands_in_range(p_pattern,begin,end,&pc);
-
-		for(const List<PosCommand>::Element *E=pc.front();E;E=E->next()) {
-
-			Pos p=E->get().pos;
-			p.column+=note_columns;
-
-			events.insert(p,E->get().command);
-		}
-
-	}
-
-	if (p_to.column>=note_columns+command_columns) {
+	if (p_to.column>=note_columns) {
 		//has commands
 
-		int begin = p_from.column-(note_columns+command_columns);
-		int end = p_to.column-(note_columns+command_columns);
+		int begin = p_from.column-(note_columns);
+		int end = p_to.column-(note_columns);
 
 
 		if (begin<0)
@@ -611,7 +522,7 @@ void Track::get_events_in_range(int p_pattern,const Pos& p_from,const Pos& p_to,
 				uint8_t v = automations[i]->get_point_by_index(p_pattern,j+f);
 				Tick t = automations[i]->get_point_tick_by_index(p_pattern,j+f);
 				Pos p;
-				p.column=i+note_columns+command_columns;
+				p.column=i+note_columns;
 				p.tick=t;
 				events.insert(p,v);
 
@@ -631,16 +542,6 @@ void Track::get_events_in_range(int p_pattern,const Pos& p_from,const Pos& p_to,
 }
 
 
-void Track::set_swing(float p_swing) {
-
-	_AUDIO_LOCK_
-	swing=p_swing;
-}
-
-float Track::get_swing() const {
-
-	return swing;
-}
 
 void Track::set_swing_step(int p_swing_step) {
 
@@ -652,12 +553,57 @@ int Track::get_swing_step() const {
 	return swing_step;
 }
 
+ControlPort* Track::get_volume_port() {
+
+	return &volume;
+}
+ControlPort* Track::get_pan_port(){
+
+	return &pan;
+}
+ControlPort* Track::get_swing_port(){
+
+	return &swing;
+}
+
+void Track::set_muted(bool p_mute) {
+
+	muted=p_mute;
+}
+
+bool Track::is_muted() const {
+	return muted;
+}
+
+
 Track::Track() {
 
-	swing=0;
+	swing.name="Swing";
+	swing.min=0;
+	swing.max=1;
+	swing.step=0.01;
+	swing.initial=0;
+	swing.value=0;
+
+	volume.name="Volume";
+	volume.max=1;
+	volume.min=0;
+	volume.step=0.01;
+	volume.initial=0.7;
+	volume.value=0.7;
+
+	pan.name="Pan";
+	pan.max=1;
+	pan.min=-1;
+	pan.step=0.01;
+	pan.initial=0;
+	pan.value=0;
+
+	name="New Track";
 	swing_step=1;
 	note_columns=1;
-	command_columns=0;
+
+	muted=false;
 
 }
 

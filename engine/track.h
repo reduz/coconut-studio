@@ -45,20 +45,22 @@ public:
 	Tick get_point_tick_by_index(int p_pattern,int p_index) const;
 	uint8_t get_point_by_index(int p_pattern,int p_index) const;
 	int get_point_count(int p_pattern) const;
-	void get_points_in_range(int p_pattern, Tick p_from, Tick p_to, int &r_from_idx, int& r_count) const;
+	void get_points_in_range(int p_pattern, Tick p_from, Tick p_to, int &r_first, int& r_count) const;
+	float interpolate_offset(int p_pattern, Tick p_offset) const;
 
 	ControlPort *get_control_port();
 	AudioEffect *get_owner();
 
-
+	void set_visible(bool p_visible);
 	bool is_visible() const;
+	void set_display_mode(DisplayMode p_mode);
 	DisplayMode get_display_mode() const;
 
 	Automation(ControlPort *p_port, AudioEffect *p_owner=NULL);
 
 };
 
-class Track : public AudioEffect {
+class Track {
 public:
 	struct Note {
 
@@ -73,23 +75,7 @@ public:
 		inline bool is_empty() const { return (note==EMPTY && volume==EMPTY); }
 		bool operator==(Note p_note) const { return note==p_note.note && volume==p_note.volume; }
 
-		Note() { note=EMPTY; volume=EMPTY; }
-	};
-
-	struct Command {
-
-		enum {
-			EMPTY=0xFF,
-			OFF=0xFE,
-			MAX_PARAMETER=99
-		};
-
-		uint8_t command;
-		uint8_t parameter;
-		inline bool is_empty() const { return (command==EMPTY && parameter==EMPTY); }
-		bool operator==(Command p_command) const { return command==p_command.command && parameter==p_command.parameter; }
-
-		Command() { command=EMPTY; parameter=EMPTY; }
+		Note(uint8_t p_note=EMPTY,uint8_t p_volume=EMPTY) { note=p_note; volume=p_volume; }
 	};
 
 	struct Pos {
@@ -101,7 +87,7 @@ public:
 		bool operator>(const Pos& p_rval) const { return (tick==p_rval.tick)?(column>p_rval.column):(tick>p_rval.tick); }
 		bool operator==(const Pos& p_rval) const { return (tick==p_rval.tick) && (column==p_rval.column); }
 
-		Pos() { tick=0; column=0; }
+		Pos(Tick p_tick=0, int p_column=0) { tick=p_tick; column=p_column; }
 	};
 
 	//generic event?
@@ -109,7 +95,6 @@ public:
 
 		enum Type {
 			TYPE_NOTE,
-			TYPE_COMMAND,
 			TYPE_AUTOMATION
 		};
 
@@ -139,30 +124,10 @@ public:
 
 		}
 
-		operator Command() const {
-
-			if (type!=TYPE_COMMAND)
-				return Command();
-			else {
-
-				Command c;
-				c.command=a;
-				c.parameter=b;
-				return c;
-			}
-
-		}
-
 		Event(const Note& p_note) {
 			type=TYPE_NOTE;
 			a=p_note.note;
 			b=p_note.volume;
-		}
-
-		Event(const Command& p_command) {
-			type=TYPE_COMMAND;
-			a=p_command.command;
-			b=p_command.parameter;
 		}
 
 		Event(const uint8_t p_autoval) {
@@ -180,11 +145,6 @@ public:
 		Note note;
 	};
 
-	struct PosCommand {
-		Pos pos;
-		Command command;
-	};
-
 	struct PosEvent {
 		Pos pos;
 		Event event;
@@ -195,16 +155,22 @@ private:
 	Map<int, ValueStream<Pos, Note > > note_data;
 	int note_columns;
 
-	Map<int, ValueStream<Pos, Command > > command_data;
-	int command_columns;
-
-	float swing;
 	int swing_step;
+	bool muted;
 
 	Vector<AudioEffect*> effects;
 	Vector<Automation*> automations;
 
+	ControlPortDefault swing;
+	ControlPortDefault volume;
+	ControlPortDefault pan;
+
+	String name;
+
 public:
+
+	void set_name(String p_name);
+	String get_name() const;
 
 	/* audio effects */
 
@@ -219,14 +185,12 @@ public:
 	void add_automation(Automation *p_automation,int p_pos=-1);
 	void remove_automation(int p_pos);
 	Automation *get_automation(int p_pos) const;
-
-	virtual int get_internal_automation_count() const=0;
-	virtual Automation *internal_automation_get(int p_pos)=0;
+	void swap_automations(int p_which,int p_by_which);
 
 	/* notes */
 
-	void set_note_columns(int p_columns);
-	int get_note_columns() const;
+	void set_columns(int p_columns);
+	int get_column_count() const;
 
 	void set_note(int p_pattern, Pos p_pos, Note p_note);
 	Note get_note(int p_pattern,Pos p_pos) const;
@@ -238,35 +202,25 @@ public:
 	void get_notes_in_range(int p_pattern,const Pos& p_from,const Pos& p_to,int &r_first, int& r_count ) const;
 	void get_notes_in_range(int p_pattern,const Pos& p_from,const Pos& p_to,List<PosNote> *r_notes ) const;
 
-	/* commands */
-
-	void set_command_columns(int p_columns);
-	int get_command_columns() const;
-
-	void set_command(int p_pattern, Pos p_pos, Command p_command);
-	Command get_command(int p_pattern,Pos p_pos) const;
-
-	int get_command_count(int p_pattern) const;
-	Command get_command_by_index(int p_pattern,int p_index) const;
-	Pos get_command_pos_by_index(int p_pattern,int p_index) const;
-
-	void get_commands_in_range(int p_pattern,const Pos& p_from,const Pos& p_to,int &r_first, int& r_count ) const;
-	void get_commands_in_range(int p_pattern,const Pos& p_from,const Pos& p_to,List<PosCommand> *r_commands ) const;
-
 
 	/* swingie */
-
-	void set_swing(float p_swing);
-	float get_swing() const;
 
 	void set_swing_step(int p_swing_step);
 	int get_swing_step() const;
 
+	void set_muted(bool p_mute);
+	bool is_muted() const;
 
 	int get_event_column_count() const;
+	Track::Event::Type get_event_column_type(int p_column) const;
 	void set_event(int p_pattern, int p_column, Tick p_pos, const Event& p_event);
 	Event get_event(int p_pattern,int p_column, Tick p_pos) const;
 	void get_events_in_range(int p_pattern,const Pos& p_from,const Pos& p_to,List<PosEvent> *r_events ) const;
+
+	ControlPort* get_volume_port();
+	ControlPort* get_pan_port();
+	ControlPort* get_swing_port();
+
 
 	Track();
 };
