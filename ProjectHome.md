@@ -1,0 +1,1 @@
+Coconut Studio is an integrated music sequencing application aiming to take music trackig to the next generation.
