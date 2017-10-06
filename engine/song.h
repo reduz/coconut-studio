@@ -50,7 +50,7 @@ public:
 	void swap_tracks(int p_which,int p_by_which);
 
 	int get_event_column_count() const;
-	void set_event(int p_pattern, int p_column, Tick p_pos, const Track::Event& p_event);
+	void set_event(int p_pattern, int p_column, Tick p_pos, Track::Event p_event);
 	Track::Event::Type get_event_column_type(int p_column) const;
 	Track::Event get_event(int p_pattern,int p_column, Tick p_pos) const;
 	void get_events_in_range(int p_pattern,const Track::Pos& p_from,const Track::Pos& p_to,List<Track::PosEvent> *r_events ) const;

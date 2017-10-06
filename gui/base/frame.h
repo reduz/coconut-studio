@@ -39,6 +39,7 @@ public:
 	
 	virtual void adjust_minimum_size();
 	
+	void updatef() { update(); }
 	virtual	void update();
 	void update(bool p_only_rect,const Rect& p_rect=Rect()); ///< Call update. This means the frame will be redraw when IDLE (not when update called!). Alternative you can ask to update only a region.
 	
