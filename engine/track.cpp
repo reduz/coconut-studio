@@ -5,6 +5,11 @@ void Automation::set_point(int p_pattern, Tick p_offset, uint8_t p_value) {
 
 	_AUDIO_LOCK_
 
+	if (p_value == EMPTY) {
+		remove_point(p_pattern, p_offset);
+		return;
+	}
+
 	if (!data.has(p_pattern)) {
 
 		data[p_pattern] = ValueStream<Tick, uint8_t>();
@@ -22,7 +27,8 @@ bool Automation::has_point(int p_pattern, Tick p_offset) const {
 
 uint8_t Automation::get_point(int p_pattern, Tick p_offset) const {
 
-	ERR_FAIL_COND_V(!data.has(p_pattern), 0);
+	if (!data.has(p_pattern))
+		return EMPTY;
 
 	int idx = data[p_pattern].find_exact(p_offset);
 	if (idx < 0)
@@ -93,8 +99,8 @@ float Automation::interpolate_offset(int p_pattern, Tick p_offset) const {
 	if (n >= total)
 		return -1;
 	float c = float(p_offset - vs.get_pos(pos)) / float(vs.get_pos(n) - vs.get_pos(pos));
-	float a = (vs[pos] / 255.0);
-	float b = (vs[n] / 255.0);
+	float a = (vs[pos] / float(VALUE_MAX));
+	float b = (vs[n] / float(VALUE_MAX));
 
 	return b * c + a * (1.0 - c);
 }

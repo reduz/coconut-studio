@@ -160,6 +160,36 @@ Track::Event Song::get_event(int p_pattern, int p_column, Tick p_pos) const {
 	ERR_FAIL_COND_V(true, Track::Event());
 }
 void Song::get_events_in_range(int p_pattern, const Track::Pos &p_from, const Track::Pos &p_to, List<Track::PosEvent> *r_events) const {
+
+	int col = 0;
+	for (int i = 0; i < tracks.size(); i++) {
+
+		int tc = tracks[i]->get_event_column_count();
+
+		for (int j = 0; j < tc; j++) {
+
+			if (col >= p_from.column) {
+
+				Track::Pos from = p_from;
+				from.column = j;
+				Track::Pos to = p_to;
+				to.column = j;
+
+				List<Track::PosEvent> pevents;
+				tracks[i]->get_events_in_range(p_pattern, from, to, &pevents);
+
+				for (List<Track::PosEvent>::Element *E = pevents.front(); E; E = E->next()) {
+					Track::PosEvent pe = E->get();
+					pe.pos.column = col;
+					r_events->push_back(pe);
+				}
+			}
+
+			col++;
+			if (col > p_to.column)
+				break;
+		}
+	}
 }
 
 Song::~Song() {

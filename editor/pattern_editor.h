@@ -38,6 +38,9 @@ class PatternEditor : public Widget {
 	int h_offset;
 	int visible_rows;
 
+	int row_height_cache;
+	int row_top_ofs;
+
 	struct Cursor {
 		int row;
 		int column;
@@ -61,7 +64,7 @@ class PatternEditor : public Widget {
 		Rect r;
 	};
 
-	struct ClickAreas {
+	struct ClickArea {
 
 		int column;
 
@@ -72,21 +75,37 @@ class PatternEditor : public Widget {
 
 		Vector<Field> fields;
 
+		Automation *automation;
+
 		struct AutomationPoint {
 
+			int index;
 			int x, y;
 			Tick tick;
 		};
 
 		List<AutomationPoint> automation_points;
+
+		ClickArea() {
+			automation = NULL;
+		}
 	};
 
-	List<ClickArea> click_Areas;
+	List<ClickArea> click_areas;
 
 	int current_menu_track;
 	int current_menu_automation;
 	void _menu_option(int p_option);
 	void _menu_optionc(int p_option, bool);
+
+	int grabbing_point;
+	Tick grabbing_point_tick_from;
+	uint8_t grabbing_point_value_from;
+	Tick grabbing_point_tick;
+	uint8_t grabbing_point_value;
+	Automation *grabbing_automation;
+	int grabbing_x, grabbing_width;
+	Point grabbing_mouse_pos;
 
 	UndoRedo *undo_redo;
 
@@ -99,11 +118,13 @@ class PatternEditor : public Widget {
 
 	virtual bool key(unsigned long p_unicode, unsigned long p_scan_code, bool p_press, bool p_repeat, int p_modifier_mask);
 	virtual void mouse_button(const Point &p_pos, int p_button, bool p_press, int p_modifier_mask);
+	virtual void mouse_motion(const Point &p_pos, const Point &p_rel, int p_button_mask);
 	virtual void draw(const Point &p_global, const Size &p_size, const Rect &p_exposed);
 	virtual void set_in_window();
 
 	void get_cursor_column_data(Track **r_track, int &r_automation, int &r_track_column);
 
+	void _field_clear();
 	void _validate_cursor();
 	void _redraw();
 

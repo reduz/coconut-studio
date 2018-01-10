@@ -3,12 +3,74 @@
 #include "gui/base/painter.h"
 #include "key_bindings.h"
 #include <stdio.h>
-
+#include <cmath>
 void PatternEditor::_cursor_advance() {
 
 	cursor.row += cursor_advance;
 	if (cursor.row >= get_total_rows() - 1)
 		cursor.row = get_total_rows() - 1;
+}
+
+void PatternEditor::_field_clear() {
+
+	Track::Pos from;
+	from.tick = cursor.row * TICKS_PER_BEAT / rows_per_beat;
+	from.column = cursor.column;
+
+	Track::Pos to;
+	to.tick = from.tick + TICKS_PER_BEAT / rows_per_beat;
+	to.column = cursor.column;
+
+	List<Track::PosEvent> events;
+
+	song->get_events_in_range(current_pattern, from, to, &events);
+
+	printf("evcount: %i\n", events.size());
+	if (events.size() == 0) {
+		_cursor_advance();
+		update();
+		return;
+	}
+
+	if (cursor.field == 0 || cursor.field == 1) { //just clear whathever
+
+		undo_redo->begin_action("Clear Event");
+
+		for (List<Track::PosEvent>::Element *E = events.front(); E; E = E->next()) {
+			Track::Event ev = E->get().event;
+			Track::Event old_ev = ev;
+			ev.a = Track::Note::EMPTY;
+			ev.b = 0xFF;
+			undo_redo->do_method(
+					song, &Song::set_event, current_pattern, cursor.column,
+					E->get().pos.tick, ev);
+			undo_redo->undo_method(
+					song, &Song::set_event, current_pattern, cursor.column,
+					E->get().pos.tick, old_ev);
+			undo_redo->do_method(this, &PatternEditor::updatef);
+			undo_redo->undo_method(this, &PatternEditor::updatef);
+		}
+		undo_redo->commit_action();
+	} else {
+		undo_redo->begin_action("Clear Volume");
+
+		for (List<Track::PosEvent>::Element *E = events.front(); E; E = E->next()) {
+			Track::Event ev = E->get().event;
+			Track::Event old_ev = ev;
+			ev.b = Track::Note::EMPTY;
+			undo_redo->do_method(
+					song, &Song::set_event, current_pattern, cursor.column,
+					E->get().pos.tick, ev);
+			undo_redo->undo_method(
+					song, &Song::set_event, current_pattern, cursor.column,
+					E->get().pos.tick, old_ev);
+			undo_redo->do_method(this, &PatternEditor::updatef);
+			undo_redo->undo_method(this, &PatternEditor::updatef);
+		}
+		undo_redo->commit_action();
+	}
+	update();
+	_cursor_advance();
 }
 
 bool PatternEditor::key(unsigned long p_unicode, unsigned long p_scan_code,
@@ -139,6 +201,105 @@ bool PatternEditor::key(unsigned long p_unicode, unsigned long p_scan_code,
 			v_offset++;
 			update();
 		}
+	} else if (sc == KeyBind::get_keybind_code(KB_CURSOR_INSERT)) {
+
+		List<Track::PosEvent> events;
+
+		Track::Pos from;
+		from.tick = cursor.row * TICKS_PER_BEAT / rows_per_beat;
+		from.column = cursor.column;
+
+		Track::Pos to;
+		to.tick = song->pattern_get_beats(current_pattern) * TICKS_PER_BEAT;
+		to.column = cursor.column;
+
+		song->get_events_in_range(current_pattern, from, to, &events);
+
+		if (events.size()) {
+
+			undo_redo->begin_action("Insert", true);
+
+			for (List<Track::PosEvent>::Element *E = events.front(); E; E = E->next()) {
+
+				Track::Event ev = E->get().event;
+				ev.a = 0xFF;
+				ev.b = 0xFF;
+
+				undo_redo->do_method(song, &Song::set_event, current_pattern, cursor.column, E->get().pos.tick, ev);
+			}
+
+			for (List<Track::PosEvent>::Element *E = events.front(); E; E = E->next()) {
+
+				Track::Event ev = E->get().event;
+				undo_redo->do_method(song, &Song::set_event, current_pattern, cursor.column, E->get().pos.tick + TICKS_PER_BEAT / rows_per_beat, ev);
+				ev.a = 0xFF;
+				ev.b = 0xFF;
+				undo_redo->undo_method(song, &Song::set_event, current_pattern, cursor.column, E->get().pos.tick + TICKS_PER_BEAT / rows_per_beat, ev);
+			}
+
+			for (List<Track::PosEvent>::Element *E = events.front(); E; E = E->next()) {
+
+				Track::Event ev = E->get().event;
+				undo_redo->undo_method(song, &Song::set_event, current_pattern, cursor.column, E->get().pos.tick, ev);
+			}
+
+			undo_redo->do_method(this, &PatternEditor::updatef);
+			undo_redo->undo_method(this, &PatternEditor::updatef);
+			undo_redo->commit_action();
+		}
+	} else if (sc == KeyBind::get_keybind_code(KB_CURSOR_DELETE)) {
+
+		List<Track::PosEvent> events;
+
+		Track::Pos from;
+		from.tick = cursor.row * TICKS_PER_BEAT / rows_per_beat;
+		from.column = cursor.column;
+
+		Track::Pos to;
+		to.tick = song->pattern_get_beats(current_pattern) * TICKS_PER_BEAT;
+		to.column = cursor.column;
+
+		song->get_events_in_range(current_pattern, from, to, &events);
+
+		if (events.size()) {
+
+			undo_redo->begin_action("Delete", true);
+
+			Tick limit = from.tick;
+
+			for (List<Track::PosEvent>::Element *E = events.front(); E; E = E->next()) {
+
+				Track::Event ev = E->get().event;
+				ev.a = 0xFF;
+				ev.b = 0xFF;
+
+				undo_redo->do_method(song, &Song::set_event, current_pattern, cursor.column, E->get().pos.tick, ev);
+			}
+
+			for (List<Track::PosEvent>::Element *E = events.front(); E; E = E->next()) {
+
+				Tick new_ofs = E->get().pos.tick - TICKS_PER_BEAT / rows_per_beat;
+
+				if (new_ofs < limit)
+					continue;
+
+				Track::Event ev = E->get().event;
+				undo_redo->do_method(song, &Song::set_event, current_pattern, cursor.column, new_ofs, ev);
+				ev.a = 0xFF;
+				ev.b = 0xFF;
+				undo_redo->undo_method(song, &Song::set_event, current_pattern, cursor.column, new_ofs, ev);
+			}
+
+			for (List<Track::PosEvent>::Element *E = events.front(); E; E = E->next()) {
+
+				Track::Event ev = E->get().event;
+				undo_redo->undo_method(song, &Song::set_event, current_pattern, cursor.column, E->get().pos.tick, ev);
+			}
+
+			undo_redo->do_method(this, &PatternEditor::updatef);
+			undo_redo->undo_method(this, &PatternEditor::updatef);
+			undo_redo->commit_action();
+		}
 
 	} else {
 
@@ -198,6 +359,11 @@ bool PatternEditor::key(unsigned long p_unicode, unsigned long p_scan_code,
 					undo_redo->commit_action();
 					_cursor_advance();
 				}
+
+				if (sc == KeyBind::get_keybind_code(KB_CURSOR_FIELD_CLEAR)) {
+					_field_clear();
+				}
+
 			} else if (cursor.field == 1) {
 				// put octave
 				if (p_scan_code >= KEY_0 && p_scan_code <= KEY_9) {
@@ -229,6 +395,11 @@ bool PatternEditor::key(unsigned long p_unicode, unsigned long p_scan_code,
 
 					return true;
 				}
+
+				if (sc == KeyBind::get_keybind_code(KB_CURSOR_FIELD_CLEAR)) {
+					_field_clear();
+				}
+
 			} else if (cursor.field == 2) {
 				// put volume 1
 				if (p_scan_code >= KEY_0 && p_scan_code <= KEY_9) {
@@ -260,6 +431,11 @@ bool PatternEditor::key(unsigned long p_unicode, unsigned long p_scan_code,
 
 					return true;
 				}
+
+				if (sc == KeyBind::get_keybind_code(KB_CURSOR_FIELD_CLEAR)) {
+					_field_clear();
+				}
+
 			} else if (cursor.field == 3) {
 				// put volume 2
 				if (p_scan_code >= KEY_0 && p_scan_code <= KEY_9) {
@@ -293,6 +469,10 @@ bool PatternEditor::key(unsigned long p_unicode, unsigned long p_scan_code,
 					_cursor_advance();
 
 					return true;
+				}
+
+				if (sc == KeyBind::get_keybind_code(KB_CURSOR_FIELD_CLEAR)) {
+					_field_clear();
 				}
 			}
 		} else if (automation >= 0) {
@@ -334,6 +514,10 @@ bool PatternEditor::key(unsigned long p_unicode, unsigned long p_scan_code,
 						_cursor_advance();
 					}
 				}
+			}
+
+			if (sc == KeyBind::get_keybind_code(KB_CURSOR_FIELD_CLEAR)) {
+				_field_clear();
 			}
 		}
 
@@ -455,6 +639,148 @@ void PatternEditor::mouse_button(const Point &p_pos, int p_button, bool p_press,
 				return;
 			}
 		}
+
+		for (List<ClickArea>::Element *E = click_areas.front(); E; E = E->next()) {
+
+			int point_index = -1;
+			float point_d = 1e20;
+
+			Point pos;
+			for (List<ClickArea::AutomationPoint>::Element *F = E->get().automation_points.front(); F; F = F->next()) {
+
+				Point p = Point(F->get().x, F->get().y);
+
+				float d = sqrt((p.x - p_pos.x) * (p.x - p_pos.x) + (p.y - p_pos.y) * (p.y - p_pos.y));
+
+				if (d < 4) {
+					if (point_index < 0 || d < point_d) {
+						point_index = F->get().index;
+						point_d = d;
+						pos = p;
+					}
+				}
+			}
+
+			if (point_index >= 0) {
+				grabbing_point = point_index;
+				grabbing_point_tick_from = E->get().automation->get_point_tick_by_index(current_pattern, grabbing_point);
+				grabbing_point_value_from = E->get().automation->get_point_by_index(current_pattern, grabbing_point);
+				grabbing_point_tick = grabbing_point_tick_from;
+				grabbing_point_value = grabbing_point_value_from;
+				grabbing_automation = E->get().automation;
+				grabbing_x = E->get().fields[0].x;
+				grabbing_width = E->get().fields[0].width;
+				grabbing_mouse_pos = pos;
+
+			} else if (p_modifier_mask & KEY_MASK_CTRL && p_pos.x >= E->get().fields[0].x && p_pos.x < E->get().fields[0].x + E->get().fields[0].width) {
+				//add it
+				int x = p_pos.x - E->get().fields[0].x;
+				int y = p_pos.y;
+				int w = E->get().fields[0].width;
+
+				Tick tick = MAX(0, (y - row_top_ofs + v_offset * row_height_cache)) * TICKS_PER_BEAT / (row_height_cache * rows_per_beat);
+
+				uint8_t value = CLAMP((x)*Automation::VALUE_MAX / w, 0, Automation::VALUE_MAX);
+
+				grabbing_automation = E->get().automation;
+				grabbing_automation->set_point(current_pattern, tick, value);
+				grabbing_point = 1; //useless, can be anything here
+				grabbing_point_tick_from = tick;
+				grabbing_point_value_from = Automation::EMPTY;
+				grabbing_point_tick = tick;
+				grabbing_point_value = value;
+				grabbing_x = E->get().fields[0].x;
+				grabbing_width = E->get().fields[0].width;
+				grabbing_mouse_pos = p_pos;
+				update();
+			} else {
+				for (int i = 0; i < E->get().fields.size(); i++) {
+					int localx = p_pos.x - E->get().fields[i].x;
+					if (localx >= 0 && localx < E->get().fields[i].width) {
+						cursor.field = i;
+						cursor.column = E->get().column;
+						update();
+						cursor.row = (p_pos.y / row_height_cache) + v_offset;
+
+						return;
+					}
+				}
+			}
+		}
+	}
+
+	if (p_press && p_button == 3 && grabbing_point == -1) {
+		//remove
+		for (List<ClickArea>::Element *E = click_areas.front(); E; E = E->next()) {
+
+			int point_index = -1;
+			float point_d = 1e20;
+			for (List<ClickArea::AutomationPoint>::Element *F = E->get().automation_points.front(); F; F = F->next()) {
+
+				Point p = Point(F->get().x, F->get().y);
+
+				float d = sqrt((p.x - p_pos.x) * (p.x - p_pos.x) + (p.y - p_pos.y) * (p.y - p_pos.y));
+
+				if (d < 4) {
+					if (point_index < 0 || d < point_d) {
+						point_index = F->get().index;
+						point_d = d;
+					}
+				}
+			}
+
+			if (point_index >= 0) {
+				undo_redo->begin_action("Remove Point");
+				Tick tick = E->get().automation->get_point_tick_by_index(current_pattern, point_index);
+				uint8_t value = E->get().automation->get_point_by_index(current_pattern, point_index);
+
+				undo_redo->do_method(E->get().automation, &Automation::remove_point, current_pattern, tick);
+				undo_redo->undo_method(E->get().automation, &Automation::set_point, current_pattern, tick, value);
+				undo_redo->do_method(this, &PatternEditor::_redraw);
+				undo_redo->undo_method(this, &PatternEditor::_redraw);
+				undo_redo->commit_action();
+			}
+		}
+	}
+
+	if (!p_press && p_button == 1) {
+
+		if (grabbing_point >= 0) {
+			grabbing_point = -1;
+
+			undo_redo->begin_action("Move Point");
+			undo_redo->do_method(grabbing_automation, &Automation::remove_point, current_pattern, grabbing_point_tick_from);
+			undo_redo->do_method(grabbing_automation, &Automation::set_point, current_pattern, grabbing_point_tick, grabbing_point_value);
+			undo_redo->undo_method(grabbing_automation, &Automation::remove_point, current_pattern, grabbing_point_tick);
+			undo_redo->undo_method(grabbing_automation, &Automation::set_point, current_pattern, grabbing_point_tick_from, grabbing_point_value_from);
+			undo_redo->do_method(this, &PatternEditor::_redraw);
+			undo_redo->undo_method(this, &PatternEditor::_redraw);
+			undo_redo->commit_action();
+		}
+	}
+}
+
+void PatternEditor::mouse_motion(const Point &p_pos, const Point &p_rel, int p_button_mask) {
+
+	if (grabbing_point >= 0) {
+
+		grabbing_mouse_pos += p_rel;
+
+		int y = grabbing_mouse_pos.y;
+		int x = grabbing_mouse_pos.x;
+		Tick tick = MAX(0, (y - row_top_ofs + v_offset * row_height_cache)) * TICKS_PER_BEAT / (row_height_cache * rows_per_beat);
+
+		grabbing_automation->remove_point(current_pattern, grabbing_point_tick);
+		while (grabbing_automation->get_point(current_pattern, tick) != Automation::EMPTY) {
+			tick++;
+		}
+		uint8_t value = CLAMP((x - grabbing_x) * Automation::VALUE_MAX / grabbing_width, 0, Automation::VALUE_MAX);
+
+		grabbing_point_tick = tick;
+		grabbing_point_value = value;
+
+		grabbing_automation->set_point(current_pattern, tick, value);
+		update();
 	}
 }
 
@@ -518,7 +844,11 @@ void PatternEditor::draw(const Point &p_global, const Size &p_size,
 	int fa = p->get_font_ascent(f);
 	int sep = 1;
 	fh += sep;
+
+	row_height_cache = fh;
 	int top_ofs = 4;
+
+	row_top_ofs = top_ofs;
 
 	Color track_sep_color = color(COLOR_PATTERN_EDITOR_TRACK_SEPARATOR);
 	Color cursorcol = color(COLOR_PATTERN_EDITOR_CURSOR);
@@ -591,9 +921,9 @@ void PatternEditor::draw(const Point &p_global, const Size &p_size,
 
 			{
 				//fill fields for click areas
-				ClickAreas ca;
+				ClickArea ca;
 				ca.column = idx;
-				ClickAreas::Field f;
+				ClickArea::Field f;
 				f.width = fw;
 				f.x = ofs;
 				ca.fields.push_back(f);
@@ -762,8 +1092,9 @@ void PatternEditor::draw(const Point &p_global, const Size &p_size,
 
 					{
 						//fill fields for click areas
+						ClickArea ca;
 						ca.column = idx;
-						ClickAreas::Field f;
+						ClickArea::Field f;
 						f.width = fw;
 						f.x = ofs;
 						ca.fields.push_back(f);
@@ -828,7 +1159,7 @@ void PatternEditor::draw(const Point &p_global, const Size &p_size,
 								int val = a->get_point_by_index(current_pattern, first + l);
 
 								p->draw_fill_rect(base + Point(0, h * l), Size(fw * 2, h - 1), c);
-								p->draw_rect(base + Point(val * w / 255, 1 + h * l),
+								p->draw_rect(base + Point(val * w / Automation::VALUE_MAX, 1 + h * l),
 										Size(2, h - 2), bgc);
 							}
 						}
@@ -853,15 +1184,13 @@ void PatternEditor::draw(const Point &p_global, const Size &p_size,
 					Color c = color(COLOR_PATTERN_EDITOR_AUTOMATION_VALUE);
 					Color cpoint = color(COLOR_PATTERN_EDITOR_AUTOMATION_POINT);
 
-					{
-						//fill fields for click areas
-						ca.column = idx;
-						ClickAreas::Field f;
-						f.width = w;
-						f.x = ofs;
-						ca.fields.push_back(f);
-						click_areas.push_back(ca);
-					}
+					//fill fields for click areas
+					ClickArea ca;
+					ca.column = idx;
+					ClickArea::Field f;
+					f.width = w;
+					f.x = ofs;
+					ca.fields.push_back(f);
 
 					for (int k = 0; k < visible_rows; k++) {
 
@@ -900,7 +1229,7 @@ void PatternEditor::draw(const Point &p_global, const Size &p_size,
 
 							if (tofs >= 0)
 								p->draw_fill_rect(
-										Point(ofs + tofs * (w - 2), top_ofs + k * fh - sep + l),
+										Point(ofs + tofs * w, top_ofs + k * fh - sep + l),
 										Size(2, 1), c);
 
 							prev = tofs;
@@ -919,13 +1248,23 @@ void PatternEditor::draw(const Point &p_global, const Size &p_size,
 					int first;
 					int count;
 					a->get_points_in_range(current_pattern, pfrom, pto, first, count);
-					for (int l = first; l < count; l++) {
-						int x = (a->get_point_by_index(current_pattern, l) / 255.0) * (w - 2);
-						int y = a->get_point_tick_by_index(current_pattern, l) * fh /
-								(TICKS_PER_BEAT / rows_per_beat);
+					ca.automation = a;
+
+					for (int l = first; l < first + count; l++) {
+						int x = (a->get_point_by_index(current_pattern, l) * w / Automation::VALUE_MAX);
+						int y = a->get_point_tick_by_index(current_pattern, l) * fh / (TICKS_PER_BEAT / rows_per_beat) - v_offset * fh;
 						p->draw_fill_rect(Point(ofs + x - 2, top_ofs + y - 2 - sep),
 								Size(5, 5), cpoint);
+
+						ClickArea::AutomationPoint ap;
+						ap.tick = a->get_point_tick_by_index(current_pattern, l);
+						ap.x = ofs + x;
+						ap.y = top_ofs + y /*- sep*/;
+						ap.index = l;
+						ca.automation_points.push_back(ap);
 					}
+
+					click_areas.push_back(ca);
 
 					ofs += w;
 				} break;
@@ -1215,12 +1554,13 @@ PatternEditor::PatternEditor(Song *p_song, UndoRedo *p_undo_redo) {
 	t->get_automation(0)->set_point(0, 0, 160);
 	t->get_automation(0)->set_point(0, TICKS_PER_BEAT * 3 + 2, 22);
 	t->get_automation(0)->set_point(0, TICKS_PER_BEAT * 5, 22);
-	t->get_automation(0)->set_point(0, TICKS_PER_BEAT * 5 + 2, 180);
-	t->get_automation(0)->set_point(0, TICKS_PER_BEAT * 5 + 4, 200);
+	t->get_automation(0)->set_point(0, TICKS_PER_BEAT * 5 + 2, 80);
+	t->get_automation(0)->set_point(0, TICKS_PER_BEAT * 5 + 4, 44);
 	t->get_automation(1)->set_display_mode(Automation::DISPLAY_SMALL);
 	t->get_automation(2)->set_display_mode(Automation::DISPLAY_LARGE);
 	t->get_automation(2)->set_point(0, 0, 22);
-	t->get_automation(2)->set_point(0, TICKS_PER_BEAT * 2, 250);
-	t->get_automation(2)->set_point(0, TICKS_PER_BEAT * 3, 128);
+	t->get_automation(2)->set_point(0, TICKS_PER_BEAT * 2, 22);
+	t->get_automation(2)->set_point(0, TICKS_PER_BEAT * 3, 44);
 	set_focus_mode(FOCUS_ALL);
+	grabbing_point = -1;
 }
